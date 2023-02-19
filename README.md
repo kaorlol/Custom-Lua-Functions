@@ -1,7 +1,7 @@
-### Lua-Functions
+# Lua-Functions
 ## Custom Lua Functions
 
-# Example:
+### Example:
 ```lua
 local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Lua-Functions/main/Loader.lua"))();
 local rconsolelog = Functions.rconsolelog;
