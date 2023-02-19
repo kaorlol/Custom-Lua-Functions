@@ -1,5 +1,3 @@
-local Tick = tick();
-
 local is_executor_function = is_synapse_function or iskrnlclosure or isourclosure or isexecutorclosure or "Executor not supported.";
 local getgc = getgc or "Executor not supported.";
 
@@ -103,6 +101,6 @@ local filtergc = function(Type, Data, One)
     return Results;
 end
 
-print(string.format("Loaded filtergc in %.3f seconds.", tick() - Tick));
+print("Loaded filtergc.");
 
 return filtergc
