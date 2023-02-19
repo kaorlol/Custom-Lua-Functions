@@ -1,12 +1,10 @@
 -- << Made by: Sw1ndler#7733 >> --
 -- << Refomated by: Kaoru~#6438 >> --
 
-local Tick = tick();
-
 local syn = typeof(syn) == 'table' and syn or nil;
 local AnsiFromColors = nil;
 
-if syn == nil then
+if not syn then
     return warn("This script is only for Synapse X users.");
 end
 
@@ -98,6 +96,6 @@ local function RobloxConsoleLog(Option, Text)
     rconsoleprint("\n");
 end
 
-print(string.format("Loaded filtergc in %.3f seconds.", tick() - Tick));
+print("Loaded rconsolelog.");
 
 return RobloxConsoleLog;
