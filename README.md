@@ -1,5 +1,4 @@
-# Lua-Functions
-## Custom Lua Functions
+# Custom Lua Functions
 
 ### Example:
 ```lua
