@@ -11,7 +11,7 @@ end
 local function GetTime()
     local CurrentTime = os.date("*t");
     local Day, Month, Year = CurrentTime.day, CurrentTime.month, CurrentTime.year;
-    local Hour, Minute = CurrentTime.hour, CurrentTime.minute;
+    local Hour, Minute = CurrentTime.hour, CurrentTime.min;
 
     return string.format("%02d/%02d/%04d %02d:%02d", Month, Day, Year, Hour, Minute);
 end
