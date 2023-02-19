@@ -25,7 +25,7 @@ local function FormatFunctions()
 
     for _, Function in pairs(Functions) do
         local FunctionName = Function:match("([^/]+)$");
-        FormattedFunctions[FunctionName:gsub(".lua", "")] = loadstring(game:HttpGetAsync(Function));
+        FormattedFunctions[FunctionName:gsub(".lua", "")] = loadstring(game:HttpGetAsync(Function))();
     end
 
     return FormattedFunctions;
