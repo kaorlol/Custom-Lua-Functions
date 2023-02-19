@@ -1,6 +1,8 @@
 -- << Made by: Sw1ndler#7733 >> --
 -- << Refomated by: Kaoru~#6438 >> --
 
+local Tick = tick();
+
 local syn = typeof(syn) == 'table' and syn or nil;
 local AnsiFromColors = nil;
 
@@ -95,5 +97,7 @@ local function RobloxConsoleLog(Option, Text)
     RobloxColorPrint(Text, BgText);
     rconsoleprint("\n");
 end
+
+print(string.format("Loaded filtergc in %.3f seconds.", tick() - Tick));
 
 return RobloxConsoleLog;
