@@ -299,8 +299,8 @@ local ESP = {}; do
     function ESP:Init(Type, List, Args)
         task.spawn(function()
             while true do task.wait();
-                local NewList = (List == Players and Players:GetPlayers()) or List:GetChildren();
-                self[Type](NewList, Args);
+                local NewList = ((List == Players and Players:GetPlayers()) or List:GetChildren() or error("Invalid List!"));
+                self[Type](self, NewList, Args);
             end
         end)
     end
