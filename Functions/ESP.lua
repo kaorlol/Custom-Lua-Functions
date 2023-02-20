@@ -361,6 +361,7 @@ local ESP = {}; do
         end
 
         if Boxes[Item.Name] then
+            Boxes[Item.Name].Visible = false;
             Boxes[Item.Name]:Destroy();
         end
 
@@ -396,15 +397,15 @@ return ESP;
 
 --[[
 
-    local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
+    local Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
     local ESP = Functions.ESP;
 
     local Players = game:GetService("Players");
 
     ESP:Init("Box", Players, {
         Color = Color3.fromRGB(255, 0, 0),
-        TeamCheck = "Enemy",
-        ESPDist = 1000,
+        TeamCheck = false,
+        Distance = 1000,
     });
 
 ]]
