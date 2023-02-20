@@ -1,16 +1,16 @@
-local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
-local rconsolelog = Functions.rconsolelog;
+-- local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
+-- local rconsolelog = Functions.rconsolelog;
 
-local rconsolehide = rconsolehide or rconsoleclose;
-local rconsoleshow = rconsoleshow or function() end;
-local rconsoletop = rconsoletop or function() end;
+-- local rconsolehide = rconsolehide or rconsoleclose;
+-- local rconsoleshow = rconsoleshow or function() end;
+-- local rconsoletop = rconsoletop or function() end;
 
-rconsolename("ESP Debug Console");
-rconsoleclear();
-rconsoletop(true);
-rconsoleshow();
+-- rconsolename("ESP Debug Console");
+-- rconsoleclear();
+-- rconsoletop(true);
+-- rconsoleshow();
 
-rconsolelog("Loading", "Loading Variables");
+-- rconsolelog("Loading", "Loading Variables");
 
 local Players = game:GetService("Players");
 local LocalPlayer = Players.LocalPlayer;
@@ -28,9 +28,9 @@ for _, GUI in next, game.CoreGui:GetChildren() do
     end
 end
 
-rconsolelog("Info", "Successfully loaded variables")
+-- rconsolelog("Info", "Successfully loaded variables")
 
-rconsolelog("Loading", "Loading functions");
+-- rconsolelog("Loading", "Loading functions");
 
 local function IsNotSameTeam(Player, Toggle)
     if Toggle then
@@ -309,8 +309,9 @@ local ESP = {}; do
         task.spawn(function()
             while true do task.wait();
                 local NewList = ((List == Players and Players:GetPlayers()) or List:GetChildren()) or function()
-                    rconsolelog("Error", "Invalid List!");
-                    rconsoleshow();
+                    -- rconsolelog("Error", "Invalid List!");
+                    -- rconsoleshow();
+                    error("Invalid List!");
 
                     Shutdown = true;
                 end
@@ -369,25 +370,25 @@ local ESP = {}; do
     end
 end;
 
-rconsolelog("Info", "Successfully loaded Functions");
+-- rconsolelog("Info", "Successfully loaded Functions");
 
 Players.PlayerRemoving:Connect(function(Player)
     ESP:Destroy(Player);
 end);
 
-rconsolelog("Success", "Successfully loaded Events!");
+-- rconsolelog("Success", "Successfully loaded Events!");
 
-rconsolelog("Info", "Hiding Console In 10 seconds...");
+-- rconsolelog("Info", "Hiding Console In 10 seconds...");
 
-task.spawn(function()
-    task.wait(9);
+-- task.spawn(function()
+--     task.wait(9);
 
-    rconsolelog("Info", "Hiding...");
+--     rconsolelog("Info", "Hiding...");
 
-    task.wait(1);
+--     task.wait(1);
 
-    rconsolehide();
-end)
+--     rconsolehide();
+-- end)
 
 print("Loaded ESP.");
 
