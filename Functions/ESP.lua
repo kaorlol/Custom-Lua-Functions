@@ -297,10 +297,12 @@ local ESP = {}; do
     };
 
     function ESP:Init(Type, List, Args)
-        while true do task.wait();
-            local NewList = (List == Players and Players:GetPlayers()) or List:GetChildren();
-            Types[Type](NewList, Args);
-        end
+        task.spawn(function()
+            while true do task.wait();
+                local NewList = (List == Players and Players:GetPlayers()) or List:GetChildren();
+                Types[Type](NewList, Args);
+            end
+        end)
     end
 
     function ESP:DestroyAll()
