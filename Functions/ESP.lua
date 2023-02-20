@@ -322,7 +322,7 @@ local ESP = {}; do
                 end
 
                 if RainbowEsp then
-                    Args.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1);
+                    Args.Color = Color3.fromHSV(tick() / 10 % 1, 1, 1);
                 end
 
                 self[Type](self, NewList, Args);
@@ -410,6 +410,7 @@ return ESP;
         Color = Color3.fromRGB(255, 0, 0),
         TeamCheck = false,
         Distance = 1000,
+        Rainbow = true,
     });
 
 ]]
