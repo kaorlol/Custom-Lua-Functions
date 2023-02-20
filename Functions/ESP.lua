@@ -298,7 +298,7 @@ local ESP = {}; do
 
     function ESP:Init(Type, List, Args)
         while true do task.wait();
-            local NewList = (List == game:GetService("Players") and game:GetService("Players"):GetPlayers()) or List:GetChildren();
+            local NewList = (List == Players and Players:GetPlayers()) or List:GetChildren();
             Types[Type](NewList, Args);
         end
     end
@@ -327,23 +327,23 @@ local ESP = {}; do
         Boxes = {};
     end
 
-    function ESP:Destroy(Player)
-        if Lines[Player.Name] then
-            for _, Line in next, Lines[Player.Name] do
+    function ESP:Destroy(Item)
+        if Lines[Item.Name] then
+            for _, Line in next, Lines[Item.Name] do
                 Line:Destroy();
             end
         end
 
-        if Parts[Player.Name] then
-            Parts[Player.Name]:Destroy();
+        if Parts[Item.Name] then
+            Parts[Item.Name]:Destroy();
         end
 
-        if Boxes[Player.Name] then
-            Boxes[Player.Name]:Destroy();
+        if Boxes[Item.Name] then
+            Boxes[Item.Name]:Destroy();
         end
 
-        if ChamsFolder:FindFirstChild(Player.Name) then
-            ChamsFolder[Player.Name]:Destroy();
+        if ChamsFolder:FindFirstChild(Item.Name) then
+            ChamsFolder[Item.Name]:Destroy();
         end
     end
 end;
