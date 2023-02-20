@@ -305,6 +305,7 @@ local ESP = {}; do
 
     function ESP:Init(Type, List, Args)
         local Shutdown = false;
+        local RainbowEsp = Args.Rainbow or false;
 
         task.spawn(function()
             while true do task.wait();
@@ -318,6 +319,10 @@ local ESP = {}; do
 
                 if Shutdown then
                     break;
+                end
+
+                if RainbowEsp then
+                    Args.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1);
                 end
 
                 self[Type](self, NewList, Args);
