@@ -2,7 +2,7 @@
 
 ### Example:
 ```lua
-local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Lua-Functions/main/Loader.lua"))();
+local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
 local rconsolelog = Functions.rconsolelog;
 local filtergc = Functions.filtergc;
 
@@ -17,7 +17,7 @@ print(CreateHitBox) -- Output: Function.
 
 ### ESP Example:
 ```lua
-local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Lua-Functions/main/Loader.lua"))();
+local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
 local ESP = Functions.ESP;
 local Players = game:GetService("Players");
 
