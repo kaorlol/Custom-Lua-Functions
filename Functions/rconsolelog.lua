@@ -36,63 +36,54 @@ else
     end
 end
 
-local function Color3FromHex(Hex)
-    Hex = Hex:gsub("#", "");
-
-    local R = tonumber(Hex:sub(1, 2), 16) / 255;
-    local G = tonumber(Hex:sub(3, 4), 16) / 255;
-    local B = tonumber(Hex:sub(5, 6), 16) / 255;
-
-    return Color3.new(R, G, B);
-end
-
 local function RobloxColorPrint(Text, TextColor, BgColor)
     TextColor = TextColor or Color3.new(1, 1, 1);
     BgColor = BgColor or "0c0c0c";
 
     if typeof(TextColor) ~= 'Color3' then
-        TextColor = Color3FromHex(TextColor);
+        TextColor = Color3.fromHex(TextColor);
     end
 
     if typeof(BgColor) ~= 'Color3' then
-        BgColor = Color3FromHex(BgColor);
+        BgColor = Color3.fromHex(BgColor);
     end
 
     rconsoleprint(AnsiFromColors(Text, TextColor, BgColor));
     rconsoleprint(" ");
 end
 
-local function RobloxConsoleLog(Option, Text)
-    local BgText;
+local Types = {
+    ["Loading"] = function(Text)
+        RobloxColorPrint(" ... ", "878eac","16161f");
+        RobloxColorPrint(Text, "9ea6b0");
+    end,
+    ["Success"] = function(Text)
+        RobloxColorPrint(" Success ", "a5db69", "16161f");
+        RobloxColorPrint(Text, "a5db69");
+    end,
+    ["Error"] = function(Text)
+        RobloxColorPrint(" Error ", "db4b4b", "16161f");
+        RobloxColorPrint(Text, "db4b4b");
+    end,
+    ["Warn"] = function(Text)
+        RobloxColorPrint(" Warn ", "ffff91", "16161f");
+        RobloxColorPrint(Text, "ffff91");
+    end,
+    ["Info"] = function(Text)
+        RobloxColorPrint(" Info ", "9ea6c9", "16161f");
+        RobloxColorPrint(Text, "9ea6c9");
+    end
+};
 
+local function RobloxConsoleLog(Option, Text)
     RobloxColorPrint(" " .. GetTime() .. " ", "9ea6c9", "16161f");
 
-    if Option == "Loading" then
-        RobloxColorPrint(" ... ", "878eac","16161f");
-        BgText = "9ea6b0";
+    if Types[Option] then
+        Types[Option](Text);
+    else
+        error("Invalid option: " .. Option)
     end
 
-    if Option == "Success" then
-        RobloxColorPrint(" Success ", "a5db69", "16161f");
-        BgText = "a5db69";
-    end
-
-    if Option == "Error" then
-        RobloxColorPrint(" Error ", "db4b4b", "16161f");
-        BgText = "db4b4b";
-    end
-
-    if Option == "Warn" then
-        RobloxColorPrint(" Warn ", "ffff91", "16161f");
-        BgText = "ffff91";
-    end
-
-    if Option == "Info" then
-        RobloxColorPrint(" info ", "9ea6c9", "16161f");
-        BgText = "9ea6c9";
-    end
-
-    RobloxColorPrint(Text, BgText);
     rconsoleprint("\n");
 end
 
