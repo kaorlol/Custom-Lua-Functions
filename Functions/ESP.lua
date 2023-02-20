@@ -337,7 +337,7 @@ local ESP = {}; do
         end
 
         for _, Box in next, Boxes do
-            Box:Destroy();
+            Box.Visible = false;
         end
 
         for _, Highlight in next, ChamsFolder do
@@ -362,7 +362,6 @@ local ESP = {}; do
 
         if Boxes[Item.Name] then
             Boxes[Item.Name].Visible = false;
-            Boxes[Item.Name]:Destroy();
         end
 
         if ChamsFolder:FindFirstChild(Item.Name) then
