@@ -13,15 +13,6 @@ for _, GUI in next, game.CoreGui:GetChildren() do
         ChamsFolder.Parent = GUI
     end
 end
-Players.PlayerRemoving:Connect(function(Player)
-    if ChamsFolder:FindFirstChild(Player.Name) then
-        ChamsFolder[Player.Name]:Destroy()
-    end
-
-    if table.find(AlreadyBoxed, Player.Name) then
-        table.remove(AlreadyBoxed, table.find(AlreadyBoxed, Player.Name))
-    end
-end)
 
 local function IsNotSameTeam(Player, Toggle)
     if Toggle then
@@ -312,7 +303,7 @@ local ESP = {}; do
         end
     end
 
-    function ESP:Destroy()
+    function ESP:DestroyAll()
         for _, Line in next, Lines do
             for _, Line in next, Line do
                 Line:Destroy();
@@ -335,4 +326,30 @@ local ESP = {}; do
         Parts = {};
         Boxes = {};
     end
-end; return ESP;
+
+    function ESP:Destroy(Player)
+        if Lines[Player.Name] then
+            for _, Line in next, Lines[Player.Name] do
+                Line:Destroy();
+            end
+        end
+
+        if Parts[Player.Name] then
+            Parts[Player.Name]:Destroy();
+        end
+
+        if Boxes[Player.Name] then
+            Boxes[Player.Name]:Destroy();
+        end
+
+        if ChamsFolder:FindFirstChild(Player.Name) then
+            ChamsFolder[Player.Name]:Destroy();
+        end
+    end
+end;
+
+Players.PlayerRemoving:Connect(function(Player)
+    ESP:Destroy(Player);
+end);
+
+return ESP;
