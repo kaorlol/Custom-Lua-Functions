@@ -1,3 +1,17 @@
+local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Lua-Functions/main/Loader.lua"))();
+local rconsolelog = Functions.rconsolelog;
+
+local rconsolehide = rconsolehide or rconsoleclose;
+local rconsoleshow = rconsoleshow or function() end;
+local rconsoletop = rconsoletop or function() end;
+
+rconsolename("ESP Debug Console");
+rconsoleclear();
+rconsoletop(true);
+rconsoleshow();
+
+rconsolelog("Loading", "Loading Variables");
+
 local Players = game:GetService("Players");
 local LocalPlayer = Players.LocalPlayer;
 local Camera = workspace.CurrentCamera;
@@ -13,6 +27,10 @@ for _, GUI in next, game.CoreGui:GetChildren() do
         ChamsFolder.Parent = GUI
     end
 end
+
+rconsolelog("Info", "Successfully loaded variables")
+
+rconsolelog("Loading", "Loading functions");
 
 local function IsNotSameTeam(Player, Toggle)
     if Toggle then
@@ -131,6 +149,7 @@ local ESP = {}; do
             if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 local Corners = nil;
                 local OnScreen = nil;
+                local Vectors = nil;
 
                 if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
                     Corners = GetCorners(Item.Character.HumanoidRootPart);
@@ -140,12 +159,14 @@ local ESP = {}; do
                     OnScreen = IsOnScreen(Item);
                 end
 
-                local Vectors = {
-                    Camera:WorldToViewportPoint(Corners.TopRight);
-                    Camera:WorldToViewportPoint(Corners.BottomRight);
-                    Camera:WorldToViewportPoint(Corners.BottomLeft);
-                    Camera:WorldToViewportPoint(Corners.TopLeft);
-                };
+                if Corners then
+                    Vectors = {
+                        Camera:WorldToViewportPoint(Corners.TopRight);
+                        Camera:WorldToViewportPoint(Corners.BottomRight);
+                        Camera:WorldToViewportPoint(Corners.BottomLeft);
+                        Camera:WorldToViewportPoint(Corners.TopLeft);
+                    };
+                end
 
                 if IsAlive(Item) and IsNotSameTeam(Item, TeamCheck) and OnScreen then
                     Boxes[Item.Name].Visible = true;
@@ -282,24 +303,22 @@ local ESP = {}; do
         end
     end
 
-    -- local Types = {
-    --     ["Corner"] = function(List, Args)
-    --         ESP:Corner(List, Args);
-    --     end,
-
-    --     ["Box"] = function(List, Args)
-    --         ESP:Box(List, Args);
-    --     end,
-
-    --     ["Chams"] = function(List, Args)
-    --         ESP:Chams(List, Args);
-    --     end;
-    -- };
-
     function ESP:Init(Type, List, Args)
+        local Shutdown = false;
+
         task.spawn(function()
             while true do task.wait();
-                local NewList = ((List == Players and Players:GetPlayers()) or List:GetChildren() or error("Invalid List!"));
+                local NewList = ((List == Players and Players:GetPlayers()) or List:GetChildren()) or function()
+                    rconsolelog("Error", "Invalid List!");
+                    rconsoleshow();
+
+                    Shutdown = true;
+                end
+
+                if Shutdown then
+                    break;
+                end
+
                 self[Type](self, NewList, Args);
             end
         end)
@@ -350,8 +369,24 @@ local ESP = {}; do
     end
 end;
 
+rconsolelog("Info", "Successfully loaded Functions");
+
 Players.PlayerRemoving:Connect(function(Player)
     ESP:Destroy(Player);
 end);
+
+rconsolelog("Success", "Successfully loaded Events!");
+
+rconsolelog("Info", "Hiding Console In 10 seconds...");
+
+task.spawn(function()
+    task.wait(9);
+
+    rconsolelog("Info", "Hiding...");
+
+    task.wait(1);
+
+    rconsolehide();
+end)
 
 return ESP;
