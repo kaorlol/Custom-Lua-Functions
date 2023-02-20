@@ -1,4 +1,4 @@
-local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Lua-Functions/main/Loader.lua"))();
+local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
 local rconsolelog = Functions.rconsolelog;
 
 local rconsolehide = rconsolehide or rconsoleclose;
@@ -392,3 +392,18 @@ end)
 print("Loaded ESP.");
 
 return ESP;
+
+--[[
+
+    local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
+    local ESP = Functions.ESP;
+
+    local Players = game:GetService("Players");
+
+    ESP:Init("Box", Players, {
+        Color = Color3.fromRGB(255, 0, 0),
+        TeamCheck = "Enemy",
+        ESPDist = 1000,
+    });
+
+]]
