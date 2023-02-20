@@ -1,4 +1,4 @@
-local FunctionsFolder = "https://github.com/Uvxtq/Lua-Functions/tree/main/Functions";
+local FunctionsFolder = "https://github.com/Uvxtq/Custom-Lua-Functions/tree/main/Functions";
 
 local function MakeRaw(Url)
     local NoBlob = Url:gsub("/blob", "");
@@ -23,7 +23,7 @@ local function FormatFunctions()
     local FormattedFunctions = {};
     local Functions = GetFunctions(FunctionsFolder);
 
-    for _, Function in pairs(Functions) do
+    for _, Function in next, Functions do
         local FunctionName = Function:match("([^/]+)$");
         FormattedFunctions[FunctionName:gsub(".lua", "")] = loadstring(game:HttpGetAsync(Function))();
     end
