@@ -76,7 +76,7 @@ local ESP = {}; do
                 Chams.OutlineColor = Color;
             end
 
-            if Item ~= LocalPlayer then
+            if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 if ChamsFolder:FindFirstChild(Item.Name) == nil then
                     local Highlight = Instance.new("Highlight");
                     Highlight.Name = Item.Name;
@@ -128,7 +128,7 @@ local ESP = {}; do
                 table.insert(AlreadyBoxed, Item.Name);
             end
 
-            if Item ~= LocalPlayer then
+            if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 local Corners = nil;
                 local OnScreen = nil;
 
@@ -182,7 +182,7 @@ local ESP = {}; do
         local TeamCheck = Args.TeamCheck or false;
 
         for _, Item in next, List do
-            if Item ~= LocalPlayer then
+            if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 if not table.find(AlreadyCornered, Item.Name) then
                     local ItemLines = {
                         TopLeft1 = NewLine(Color3.fromRGB(255, 255, 255), 1);
@@ -282,25 +282,25 @@ local ESP = {}; do
         end
     end
 
-    local Types = {
-        ["Corner"] = function(List, Args)
-            ESP:Corner(List, Args);
-        end,
+    -- local Types = {
+    --     ["Corner"] = function(List, Args)
+    --         ESP:Corner(List, Args);
+    --     end,
 
-        ["Box"] = function(List, Args)
-            ESP:Box(List, Args);
-        end,
+    --     ["Box"] = function(List, Args)
+    --         ESP:Box(List, Args);
+    --     end,
 
-        ["Chams"] = function(List, Args)
-            ESP:Chams(List, Args);
-        end;
-    };
+    --     ["Chams"] = function(List, Args)
+    --         ESP:Chams(List, Args);
+    --     end;
+    -- };
 
     function ESP:Init(Type, List, Args)
         task.spawn(function()
             while true do task.wait();
                 local NewList = (List == Players and Players:GetPlayers()) or List:GetChildren();
-                Types[Type](NewList, Args);
+                self[Type](NewList, Args);
             end
         end)
     end
