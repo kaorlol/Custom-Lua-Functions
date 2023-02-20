@@ -389,4 +389,6 @@ task.spawn(function()
     rconsolehide();
 end)
 
+print("Loaded ESP.");
+
 return ESP;
