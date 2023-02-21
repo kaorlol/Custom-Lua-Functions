@@ -332,12 +332,6 @@ local ESP = {}; do
         table.insert(Initialized, Type);
     end
 
-    function ESP:DeInit(Type)
-        if table.find(Initialized, Type) then
-            table.remove(Initialized, table.find(Initialized, Type));
-        end
-    end
-
     function ESP:DestroyAll()
         for _, Line in next, Lines do
             for _, Line in next, Line do
@@ -379,6 +373,14 @@ local ESP = {}; do
 
         if ChamsFolder:FindFirstChild(Item.Name) then
             ChamsFolder[Item.Name]:Destroy();
+        end
+    end
+
+    function ESP:DeInit(Type)
+        if table.find(Initialized, Type) then
+            table.remove(Initialized, table.find(Initialized, Type));
+
+            self:DestroyAll();
         end
     end
 end;
