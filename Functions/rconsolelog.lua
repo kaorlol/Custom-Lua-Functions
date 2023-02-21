@@ -1,12 +1,8 @@
 -- << Made by: Sw1ndler#7733 >> --
--- << Refomated by: Kaoru~#6438 >> --
+-- << Reworked by: Kaoru~#6438 >> --
 
 local syn = typeof(syn) == 'table' and syn or nil;
 local AnsiFromColors = nil;
-
-if not syn then
-    return warn("This script is only for Synapse X users.");
-end
 
 local function GetTime()
     local CurrentTime = os.date("*t");
