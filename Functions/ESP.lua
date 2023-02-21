@@ -33,13 +33,7 @@ end
 -- rconsolelog("Loading", "Loading functions");
 
 local function IsNotSameTeam(Player, Toggle)
-    if Toggle then
-        if Player.TeamColor == LocalPlayer.TeamColor then
-            return false;
-        end
-    end
-
-    return true;
+    return not Toggle or Player.Team ~= LocalPlayer.Team;
 end
 
 local function IsAlive(Item)
