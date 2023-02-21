@@ -12,6 +12,8 @@
 
 -- rconsolelog("Loading", "Loading Variables");
 
+local Initialized = {};
+
 local Players = game:GetService("Players");
 local LocalPlayer = Players.LocalPlayer;
 local Camera = workspace.CurrentCamera;
@@ -303,6 +305,10 @@ local ESP = {}; do
 
         task.spawn(function()
             while true do task.wait();
+                if not table.find(Initialized, Type) then
+                    break;
+                end
+
                 local NewList = ((List == Players and Players:GetPlayers()) or List:GetChildren()) or function()
                     -- rconsolelog("Error", "Invalid List!");
                     -- rconsoleshow();
@@ -322,6 +328,14 @@ local ESP = {}; do
                 self[Type](self, NewList, Args);
             end
         end)
+
+        table.insert(Initialized, Type);
+    end
+
+    function ESP:DeInit(Type)
+        if table.find(Initialized, Type) then
+            table.remove(Initialized, table.find(Initialized, Type));
+        end
     end
 
     function ESP:DestroyAll()
