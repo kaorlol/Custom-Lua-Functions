@@ -26,6 +26,7 @@ ESP:Init("Corner", Players, {
     Color = Color3.fromRGB(255, 255, 255),
     TeamCheck = false,
     Distance = 1000,
+    Rainbow = false,
 });
 
 --[[
