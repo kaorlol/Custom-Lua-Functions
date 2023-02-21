@@ -450,6 +450,14 @@ local ESP = {}; do
     end
 
     function ESP:DeInit(Type)
+        if typeof(Type) == "table" then
+            for _, NewType in next, Type do
+                self:DeInit(NewType);
+            end
+
+            return;
+        end
+
         if table.find(Initialized, Type) then
             table.remove(Initialized, table.find(Initialized, Type));
 
