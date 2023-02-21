@@ -88,7 +88,7 @@ local ESP = {}; do
                 Chams.OutlineColor = Color;
             end
 
-            if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
                 if ChamsFolder:FindFirstChild(Item.Name) == nil then
                     local Highlight = Instance.new("Highlight");
                     Highlight.Name = Item.Name;
@@ -103,7 +103,7 @@ local ESP = {}; do
                 Chams.FillTransparency = 1;
 
                 local Distance = nil;
-                if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
+                if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") then
                     Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Item.Character.HumanoidRootPart.Position).Magnitude;
                 elseif not Item:IsA("Player") then
                     Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Item.Position).Magnitude;
@@ -140,12 +140,12 @@ local ESP = {}; do
                 table.insert(AlreadyBoxed, Item.Name);
             end
 
-            if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
                 local Corners = nil;
                 local OnScreen = nil;
                 local Vectors = nil;
 
-                if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
+                if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") then
                     Corners = GetCorners(Item.Character.HumanoidRootPart);
                     OnScreen = IsOnScreen(Item.Character.HumanoidRootPart);
                 elseif not Item:IsA("Player") then
@@ -197,7 +197,7 @@ local ESP = {}; do
         local TeamCheck = Args.TeamCheck or false;
 
         for _, Item in next, List do
-            if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
                 if not table.find(AlreadyCornered, Item.Name) then
                     local ItemLines = {
                         TopLeft1 = NewLine(Color3.fromRGB(255, 255, 255), 1);
