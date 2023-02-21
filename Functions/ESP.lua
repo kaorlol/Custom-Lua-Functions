@@ -411,7 +411,7 @@ local ESP = {}; do
             Box.Visible = false;
         end
 
-        for _, Highlight in next, ChamsFolder do
+        for _, Highlight in next, ChamsFolder:GetChildren() do
             Highlight:Destroy();
         end
 
