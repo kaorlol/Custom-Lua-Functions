@@ -1,17 +1,3 @@
--- local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
--- local rconsolelog = Functions.rconsolelog;
-
--- local rconsolehide = rconsolehide or rconsoleclose;
--- local rconsoleshow = rconsoleshow or function() end;
--- local rconsoletop = rconsoletop or function() end;
-
--- rconsolename("ESP Debug Console");
--- rconsoleclear();
--- rconsoletop(true);
--- rconsoleshow();
-
--- rconsolelog("Loading", "Loading Variables");
-
 local Initialized = {};
 
 local Players = game:GetService("Players");
@@ -20,6 +6,7 @@ local Camera = workspace.CurrentCamera;
 
 local AlreadyBoxed = {};
 local AlreadyCornered = {};
+local AlreadyTaged = {};
 
 Instance.new("ScreenGui", game.CoreGui).Name = "Kaoru"
 local ChamsFolder = Instance.new("Folder")
@@ -30,12 +17,12 @@ for _, GUI in next, game.CoreGui:GetChildren() do
     end
 end
 
--- rconsolelog("Info", "Successfully loaded variables")
+local function IsNotSameTeam(Item, Toggle)
+    if not Item:IsA("Player") then
+        return not Toggle or true;
+    end
 
--- rconsolelog("Loading", "Loading functions");
-
-local function IsNotSameTeam(Player, Toggle)
-    return not Toggle or Player.Team ~= LocalPlayer.Team;
+    return not Toggle or Item.Team ~= LocalPlayer.Team;
 end
 
 local function IsAlive(Item)
@@ -72,6 +59,29 @@ local function NewLine(Color, Thickness)
     Line.Thickness = Thickness;
 
     return Line;
+end
+
+local function FormatNametag(Item)
+    local HumanoidRootPart = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart");
+
+    if Item and Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") and Item.Character:FindFirstChild("Humanoid") then
+        if not IsAlive(Item) or Item.Character.Humanoid.Health <= 0 then
+            return ("[0] " .. Item.Name .. "| %sHP"):format(Item.Character.Humanoid.Health)
+        end
+
+        return string.format("[%s] %s | %sHP", unpack({
+            HumanoidRootPart and tostring(math.round((Item.Character.HumanoidRootPart.Position - HumanoidRootPart.Position).Magnitude)) or "N/A",
+            Item.Name,
+            tostring(math.round(Item.Character.Humanoid.Health))
+        }));
+    elseif Item and not Item:IsA("Player") then
+        return string.format("[%s] %s", unpack({
+            HumanoidRootPart and tostring(math.round((Item.Position - HumanoidRootPart.Position).Magnitude)) or "N/A",
+            Item.Name
+        }));
+    end
+
+    return "N/A";
 end
 
 local ESP = {}; do
@@ -299,27 +309,81 @@ local ESP = {}; do
         end
     end
 
+    local Tags = {};
+    function ESP:Nametag(List, Args)
+        local Color = Args.Color or Color3.fromRGB(255, 255, 255);
+        local TeamCheck = Args.TeamCheck or false;
+        local ESPDist = Args.ESPDist or 1000;
+
+        for _, Item in next, List do
+            if Item ~= LocalPlayer and IsNotSameTeam(Item, TeamCheck) then
+                if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") then
+                else
+                    return;
+                end
+
+                if not table.find(AlreadyTaged, Item.Name) then
+                    local NewTag = Drawing.new("Text");
+                    NewTag.Visible = true;
+                    NewTag.Text = "";
+                    NewTag.Size = 20;
+                    NewTag.Color = Color3.fromRGB(255, 255, 255);
+                    NewTag.Outline = true;
+
+                    Tags[Item.Name] = NewTag;
+                    table.insert(AlreadyTaged, Item.Name);
+                end
+
+                local Nametag = Tags[Item.Name];
+
+                if IsOnScreen(Item.Character.HumanoidRootPart or Item) and IsAlive(Item) and IsNotSameTeam(Item, TeamCheck) then
+                    if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("Head") then
+                    else
+                        return;
+                    end
+
+                    local HeadPosition = Camera:WorldToViewportPoint((Item.Character.Head.Position or Item.Position));
+
+                    Nametag.Text = FormatNametag(Item);
+                    Nametag.Font = 3;
+                    Nametag.Size = 16;
+                    Nametag.ZIndex = 2;
+                    Nametag.Visible = true;
+                    Nametag.Position = Vector2.new(HeadPosition.X - (Nametag.TextBounds.X / 2), HeadPosition.Y - (Nametag.TextBounds.Y * 1.25));
+                    Nametag.Color = Color;
+
+                    local Distance = (LocalPlayer.Character.HumanoidRootPart.Position - (Item.Character.HumanoidRootPart or Item).Position).Magnitude;
+
+                    if Distance and Distance <= ESPDist then
+                        Nametag.Visible = true;
+                    else
+                        Nametag.Visible = false;
+                    end
+                else
+                    Nametag.Visible = false;
+                end
+            end
+        end
+    end
+
     function ESP:Init(Type, List, Args)
-        local Shutdown = false;
         local RainbowEsp = Args.Rainbow or false;
 
         task.spawn(function()
             while true do task.wait();
+                if typeof(Type) == "table" then
+                    for _, NewType in next, Type do
+                        self:Init(NewType, List, Args);
+                    end
+
+                    return;
+                end
+
                 if not table.find(Initialized, Type) then
                     break;
                 end
 
-                local NewList = ((List == Players and Players:GetPlayers()) or List:GetChildren()) or function()
-                    -- rconsolelog("Error", "Invalid List!");
-                    -- rconsoleshow();
-                    error("Invalid List!");
-
-                    Shutdown = true;
-                end
-
-                if Shutdown then
-                    break;
-                end
+                local NewList = ((List == Players and Players:GetPlayers()) or List:GetChildren()) or error("Invalid List!");
 
                 if RainbowEsp then
                     Args.Color = Color3.fromHSV(tick() / 10 % 1, 1, 1);
@@ -351,9 +415,14 @@ local ESP = {}; do
             Highlight:Destroy();
         end
 
+        for _, Tag in next, Tags do
+            Tag.Visible = false;
+        end
+
         Lines = {};
         Parts = {};
         Boxes = {};
+        Tags = {};
     end
 
     function ESP:Destroy(Item)
@@ -374,6 +443,10 @@ local ESP = {}; do
         if ChamsFolder:FindFirstChild(Item.Name) then
             ChamsFolder[Item.Name]:Destroy();
         end
+
+        if Tags[Item.Name] then
+            Tags[Item.Name].Visible = false;
+        end
     end
 
     function ESP:DeInit(Type)
@@ -385,42 +458,22 @@ local ESP = {}; do
     end
 end;
 
--- rconsolelog("Info", "Successfully loaded Functions");
-
 Players.PlayerRemoving:Connect(function(Player)
     ESP:Destroy(Player);
 end);
-
--- rconsolelog("Success", "Successfully loaded Events!");
-
--- rconsolelog("Info", "Hiding Console In 10 seconds...");
-
--- task.spawn(function()
---     task.wait(9);
-
---     rconsolelog("Info", "Hiding...");
-
---     task.wait(1);
-
---     rconsolehide();
--- end)
 
 print("Loaded ESP.");
 
 return ESP;
 
---[[
+-- local Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
+-- local ESP = Functions.ESP;
 
-    local Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
-    local ESP = Functions.ESP;
+-- local Players = game:GetService("Players");
 
-    local Players = game:GetService("Players");
-
-    ESP:Init("Box", Players, {
-        Color = Color3.fromRGB(255, 0, 0),
-        TeamCheck = false,
-        Distance = 1000,
-        Rainbow = true,
-    });
-
-]]
+-- ESP:Init({"Box", "Nametag"}, Players, {
+--     Color = Color3.fromRGB(255, 0, 0),
+--     TeamCheck = false,
+--     Distance = 1000,
+--     Rainbow = true,
+-- });
