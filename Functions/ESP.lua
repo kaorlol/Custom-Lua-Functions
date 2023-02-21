@@ -369,19 +369,17 @@ local ESP = {}; do
     function ESP:Init(Type, List, Args)
         local RainbowEsp = Args.Rainbow or false;
 
+        if typeof(Type) == "table" then
+            for _, NewType in next, Type do
+                self:Init(NewType, List, Args);
+            end
+
+            return;
+        end
+
         task.spawn(function()
             while true do task.wait();
-                if typeof(Type) == "table" then
-                    for _, NewType in next, Type do
-                        self:Init(NewType, List, Args);
-                    end
-
-                    return;
-                end
-
-                if not table.find(Initialized, Type) then
-                    break;
-                end
+                if not table.find(Initialized, Type) then break; end
 
                 local NewList = ((List == Players and Players:GetPlayers()) or List:GetChildren()) or error("Invalid List!");
 
@@ -411,9 +409,7 @@ local ESP = {}; do
             Box.Visible = false;
         end
 
-        for _, Highlight in next, ChamsFolder:GetChildren() do
-            Highlight:Destroy();
-        end
+        ChamsFolder:ClearAllChildren();
 
         for _, Tag in next, Tags do
             Tag.Visible = false;
