@@ -316,11 +316,7 @@ local ESP = {}; do
         local ESPDist = Args.ESPDist or 1000;
 
         for _, Item in next, List do
-            if Item ~= LocalPlayer and IsNotSameTeam(Item, TeamCheck) then
-                if Item:IsA("Player") and Item.Character and not Item.Character:FindFirstChild("HumanoidRootPart") then
-                    return;
-                end
-
+            if Item ~= LocalPlayer and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
                 if not table.find(AlreadyTaged, Item.Name) then
                     local NewTag = Drawing.new("Text");
                     NewTag.Visible = true;
@@ -335,11 +331,7 @@ local ESP = {}; do
 
                 local Nametag = Tags[Item.Name];
 
-                if IsOnScreen(Item.Character.HumanoidRootPart or Item) and IsAlive(Item) and IsNotSameTeam(Item, TeamCheck) then
-                    if Item:IsA("Player") and Item.Character and not Item.Character:FindFirstChild("Head") then
-                        return;
-                    end
-
+                if IsOnScreen(Item.Character.HumanoidRootPart or Item) and IsAlive(Item) and IsNotSameTeam(Item, TeamCheck) and Item.Character:FindFirstChild("Head") then
                     local HeadPosition = Camera:WorldToViewportPoint((Item.Character.Head.Position or Item.Position));
 
                     Nametag.Text = FormatNametag(Item);
