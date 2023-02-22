@@ -350,7 +350,11 @@ local ESP = {}; do
                         Nametag.Color = Color;
                     end
 
-                    local Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Player.Character.HumanoidRootPart.Position).Magnitude;
+                    local Distance = nil;
+
+                    pcall(function()
+                        Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Player.Character.HumanoidRootPart.Position).Magnitude;
+                    end)
 
                     if Distance and Distance <= ESPDist then
                         if Tags[Player.Name] then
