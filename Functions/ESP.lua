@@ -152,7 +152,7 @@ local ESP = {}; do
                 table.insert(AlreadyBoxed, Item.Name);
             end
 
-            if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
+            if Item and Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
                 local Corners = nil;
                 local OnScreen = nil;
                 local Vectors = nil;
@@ -322,7 +322,7 @@ local ESP = {}; do
         local ESPDist = Args.ESPDist or 1000;
 
         for _, Player in next, List do
-            if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Player, TeamCheck) then
+            if Player and Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Player, TeamCheck) then
                 if not table.find(AlreadyTaged, Player.Name) then
                     local NewTag = Drawing.new("Text");
                     NewTag.Visible = true;
