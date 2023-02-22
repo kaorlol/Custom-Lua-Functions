@@ -175,12 +175,14 @@ local ESP = {}; do
                 end
 
                 if IsAlive(Item) and IsNotSameTeam(Item, TeamCheck) and OnScreen then
-                    Boxes[Item.Name].Visible = true;
-                    Boxes[Item.Name].PointA = Vector2.new(Vectors[1].X, Vectors[1].Y);
-                    Boxes[Item.Name].PointB = Vector2.new(Vectors[2].X, Vectors[2].Y);
-                    Boxes[Item.Name].PointC = Vector2.new(Vectors[3].X, Vectors[3].Y);
-                    Boxes[Item.Name].PointD = Vector2.new(Vectors[4].X, Vectors[4].Y);
-                    Boxes[Item.Name].Color = Color;
+                    if Boxes[Item.Name] then
+                        Boxes[Item.Name].Visible = true;
+                        Boxes[Item.Name].PointA = Vector2.new(Vectors[1].X, Vectors[1].Y);
+                        Boxes[Item.Name].PointB = Vector2.new(Vectors[2].X, Vectors[2].Y);
+                        Boxes[Item.Name].PointC = Vector2.new(Vectors[3].X, Vectors[3].Y);
+                        Boxes[Item.Name].PointD = Vector2.new(Vectors[4].X, Vectors[4].Y);
+                        Boxes[Item.Name].Color = Color;
+                    end
 
                     local Distance = nil;
                     if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
