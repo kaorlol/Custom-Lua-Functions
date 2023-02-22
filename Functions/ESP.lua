@@ -317,8 +317,7 @@ local ESP = {}; do
 
         for _, Item in next, List do
             if Item ~= LocalPlayer and IsNotSameTeam(Item, TeamCheck) then
-                if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") then
-                else
+                if Item:IsA("Player") and not Item.Character:FindFirstChild("HumanoidRootPart") then
                     return;
                 end
 
@@ -337,8 +336,7 @@ local ESP = {}; do
                 local Nametag = Tags[Item.Name];
 
                 if IsOnScreen(Item.Character.HumanoidRootPart or Item) and IsAlive(Item) and IsNotSameTeam(Item, TeamCheck) then
-                    if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("Head") then
-                    else
+                    if Item:IsA("Player") and not Item.Character:FindFirstChild("Head") then
                         return;
                     end
 
