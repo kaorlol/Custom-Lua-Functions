@@ -321,9 +321,9 @@ local ESP = {}; do
         local TeamCheck = Args.TeamCheck or false;
         local ESPDist = Args.ESPDist or 1000;
 
-        for _, Item in next, List do
-            if Item ~= LocalPlayer and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
-                if not table.find(AlreadyTaged, Item.Name) then
+        for _, Player in next, List do
+            if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Player, TeamCheck) then
+                if not table.find(AlreadyTaged, Player.Name) then
                     local NewTag = Drawing.new("Text");
                     NewTag.Visible = true;
                     NewTag.Text = "";
@@ -331,17 +331,17 @@ local ESP = {}; do
                     NewTag.Color = Color3.fromRGB(255, 255, 255);
                     NewTag.Outline = true;
 
-                    Tags[Item.Name] = NewTag;
-                    table.insert(AlreadyTaged, Item.Name);
+                    Tags[Player.Name] = NewTag;
+                    table.insert(AlreadyTaged, Player.Name);
                 end
 
-                local Nametag = Tags[Item.Name];
+                local Nametag = Tags[Player.Name];
 
-                if IsOnScreen(Item.Character.HumanoidRootPart or Item) and IsAlive(Item) and IsNotSameTeam(Item, TeamCheck) and Item.Character:FindFirstChild("Head") then
-                    local HeadPosition = Camera:WorldToViewportPoint((Item.Character.Head.Position or Item.Position));
+                if IsOnScreen(Player.Character.HumanoidRootPart) and IsAlive(Player) and IsNotSameTeam(Player, TeamCheck) and Player.Character:FindFirstChild("Head") then
+                    local HeadPosition = Camera:WorldToViewportPoint(Player.Character.Head.Position);
 
-                    if Tags[Item.Name] then
-                        Nametag.Text = FormatNametag(Item);
+                    if Tags[Player.Name] then
+                        Nametag.Text = FormatNametag(Player);
                         Nametag.Font = 3;
                         Nametag.Size = 16;
                         Nametag.ZIndex = 2;
@@ -350,19 +350,19 @@ local ESP = {}; do
                         Nametag.Color = Color;
                     end
 
-                    local Distance = (LocalPlayer.Character.HumanoidRootPart.Position - (Item.Character.HumanoidRootPart or Item).Position).Magnitude;
+                    local Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Player.Character.HumanoidRootPart.Position).Magnitude;
 
                     if Distance and Distance <= ESPDist then
-                        if Tags[Item.Name] then
+                        if Tags[Player.Name] then
                             Nametag.Visible = true;
                         end
                     else
-                        if Tags[Item.Name] then
+                        if Tags[Player.Name] then
                             Nametag.Visible = false;
                         end
                     end
                 else
-                    if Tags[Item.Name] then
+                    if Tags[Player.Name] then
                         Nametag.Visible = false;
                     end
                 end
