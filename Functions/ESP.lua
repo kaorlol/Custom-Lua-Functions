@@ -190,12 +190,18 @@ local ESP = {}; do
                     end
 
                     if Distance and Distance <= ESPDist then
-                        Boxes[Item.Name].Visible = true;
+                        if Boxes[Item.Name] then
+                            Boxes[Item.Name].Visible = true;
+                        end
                     else
-                        Boxes[Item.Name].Visible = false;
+                        if Boxes[Item.Name] then
+                            Boxes[Item.Name].Visible = false;
+                        end
                     end
                 else
-                    Boxes[Item.Name].Visible = false;
+                    if Boxes[Item.Name] then
+                        Boxes[Item.Name].Visible = false;
+                    end
                 end
             end
         end
@@ -334,23 +340,31 @@ local ESP = {}; do
                 if IsOnScreen(Item.Character.HumanoidRootPart or Item) and IsAlive(Item) and IsNotSameTeam(Item, TeamCheck) and Item.Character:FindFirstChild("Head") then
                     local HeadPosition = Camera:WorldToViewportPoint((Item.Character.Head.Position or Item.Position));
 
-                    Nametag.Text = FormatNametag(Item);
-                    Nametag.Font = 3;
-                    Nametag.Size = 16;
-                    Nametag.ZIndex = 2;
-                    Nametag.Visible = true;
-                    Nametag.Position = Vector2.new(HeadPosition.X - (Nametag.TextBounds.X / 2), HeadPosition.Y - (Nametag.TextBounds.Y * 1.25));
-                    Nametag.Color = Color;
+                    if Tags[Item.Name] then
+                        Nametag.Text = FormatNametag(Item);
+                        Nametag.Font = 3;
+                        Nametag.Size = 16;
+                        Nametag.ZIndex = 2;
+                        Nametag.Visible = true;
+                        Nametag.Position = Vector2.new(HeadPosition.X - (Nametag.TextBounds.X / 2), HeadPosition.Y - (Nametag.TextBounds.Y * 1.25));
+                        Nametag.Color = Color;
+                    end
 
                     local Distance = (LocalPlayer.Character.HumanoidRootPart.Position - (Item.Character.HumanoidRootPart or Item).Position).Magnitude;
 
                     if Distance and Distance <= ESPDist then
-                        Nametag.Visible = true;
+                        if Tags[Item.Name] then
+                            Nametag.Visible = true;
+                        end
                     else
-                        Nametag.Visible = false;
+                        if Tags[Item.Name] then
+                            Nametag.Visible = false;
+                        end
                     end
                 else
-                    Nametag.Visible = false;
+                    if Tags[Item.Name] then
+                        Nametag.Visible = false;
+                    end
                 end
             end
         end
