@@ -469,6 +469,10 @@ local ESP = {}; do
 
             self:DestroyAll();
         end
+
+        table.clear(AlreadyTaged);
+        table.clear(AlreadyBoxed);
+        table.clear(AlreadyCornered);
     end
 end;
 
