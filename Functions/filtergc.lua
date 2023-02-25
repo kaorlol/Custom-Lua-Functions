@@ -1,106 +1,102 @@
-local is_executor_function = is_synapse_function or iskrnlclosure or isourclosure or isexecutorclosure or "Executor not supported.";
-local getgc = getgc or "Executor not supported.";
+local getgc = getgc or "???";
 
-if is_executor_function == "Executor not supported." then
-    return warn("Executor not supported.");
-end
+local TypeOptionFuncs = {
+	["function"] = {
+		Name = function(Function, Value)
+			return (debug.info(Function, "n") or "") == Value;
+		end,
+		Upvalues = function(Function, Value)
+			local Upvalues = debug.getupvalues(Function);
+			local Passed = 0;
 
-if getgc == "Executor not supported." then
-    return warn("Executor not supported.")
-end
+			for Index = 1, #Value do
+				Passed += (table.find(Upvalues, Value[Index]) and 1) or 0;
+			end
 
-local function NewTableFind(Table, Want)
-    for _, Value in next, Table do
-        if Value == Want then
-            return Value;
-        end
-    end
+			return #Value == Passed;
+		end,
+		Constants = function(Function, Value)
+			local Constants = debug.getconstants(Function);
+			local Passed = 0;
 
-    return nil;
-end
+			for Index = 1, #Value do
+				Passed += (table.find(Constants, Value[Index]) and 1) or 0;
+			end
 
-local Checks = {
-    ['function'] = function(Object, Data)
-        local Name, Constants, Upvalues, IgnoreSyn = (Data.Name), (Data.Constants or {}), (Data.Upvalues or {}), (Data.IgnoreSyn == nil) and true or false;
-        local ObjectName, ObjectConstants, ObjectUpvalues, ObjectIsSyn = (debug.getinfo(Object).name), (islclosure(Object) and debug.getconstants(Object) or {}), (debug.getupvalues(Object) or {}), (is_executor_function(Object));
+			return #Value == Passed;
+		end
+	};
 
-        if IgnoreSyn and ObjectIsSyn then
-            return false;
-        end
+	["table"] = {
+		Keys = function(Table, Value)
+			for Index in next, Table do -- no __iter = no detection 🤑
+				if not Value[Index] then
+					return false;
+				end
+			end
 
-        if Name and ObjectName and Name ~= ObjectName then
-            return false;
-        end
+			return true;
+		end,
+		Values = function(Table, Value)
+			for _, Values in next, Table do -- no __iter = no detection 🤑
+				if not table.find(Value, Values) then
+					return false;
+				end
+			end
 
-        for _, Constant in next, Constants do
-            if not NewTableFind(ObjectConstants, Constant) then
-                return false;
-            end
-        end
+			return true;
+		end,
+		KeyValuePairs = function(Table, Value)
+			for Index, ValuePair in next, Table do -- no __iter = no detection 🤑
+				if Value[Index] ~= ValuePair then
+					return false;
+				end
+			end
 
-        for _, Upvalue in next, Upvalues do
-            if not NewTableFind(ObjectUpvalues, Upvalue) then
-                return false;
-            end
-        end
+			return true;
+		end,
+		Select = function(Table, Value)
+			local Passed = 0;
 
-        return true;
-    end,
+			for Index = 1, #Value do
+				Passed += (rawget(Table, Value[Index]) ~= nil and 1) or 0;
+			end
 
-    ['table'] = function(Object, Data)
-        local Keys, Values, KeyValuePairs, Metatable = (Data.Keys or {}), (Data.Values or {}), (Data.KeyValuePairs or {}), (Data.Metatable or {});
-
-        local ObjectMetatable = getrawmetatable(Object)
-        if ObjectMetatable then
-            for Index, Value in next, ObjectMetatable do
-                if (Metatable[Index] ~= Value) then
-                    return false;
-                end
-            end
-        end
-
-        for _, Key in next, Keys do
-            if not Object[Key] then
-                return false;
-            end
-        end
-
-        for _, Value in next, Values do
-            if not NewTableFind(Object, Value) then
-                return false;
-            end
-        end
-
-        for Index, KeyValue in next, KeyValuePairs do
-            local Other = Object[Index];
-
-            if Other ~= KeyValue then
-                return false;
-            end
-        end
-
-        return true;
-    end,
+			return #Value == Passed;
+		end,
+	};
 }
 
-local filtergc = function(Type, Data, One)
-    local Results = {};
+local function FilterTheGC(Type, Options, ReturnOne)
+	ReturnOne = (ReturnOne == nil) or ReturnOne;
+	assert(#Options == 0, "There should be atleast 1 option");
 
-    for _, Value in next, getgc(true) do
-        if typeof(Value) == Type then
-            if Checks[Type](Value, Data) then
-                if One then
-                    return Value;
-                end
+	local Results = {};
+	local GC = getgc(true);
 
-                table.insert(Results, Value);
-            end
-        end
-    end
+	for Index = 1, #GC do
+		local Value = GC[Index];
 
-    return Results;
+		if typeof(Value) == Type then
+			local OptionsAmount = 0;
+			local Passed = 0;
+
+			for OptionName, OptionValue in Options do
+				OptionsAmount += 1
+				Passed += (TypeOptionFuncs[typeof(Value)][OptionName](Value, OptionValue) and 1) or 0;
+			end
+
+			if OptionsAmount == Passed then
+				if ReturnOne then
+					return Value;
+				else
+					table.insert(Results, Value);
+				end
+			end
+		end
+	end
+
+	return (#Results ~= 0 and Results) or nil
 end
 
-print("Loaded filtergc.");
-
-return filtergc
+return FilterTheGC
