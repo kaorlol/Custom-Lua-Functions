@@ -22,7 +22,7 @@ local ESP = Functions.ESP;
 local Players = game:GetService("Players");
 
 -- Init loops through the List with the args using a selected ESP.
-ESP:Init("Corner", Players, {
+ESP:Init("Box", Players, {
     Color = Color3.fromRGB(255, 255, 255),
     TeamCheck = false,
     Distance = 1000,
