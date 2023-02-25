@@ -1,330 +1,247 @@
-local Initialized = {};
+assert(getrawmetatable, "Your exploit is not supported.");
 
-local Players = game:GetService("Players");
-local LocalPlayer = Players.LocalPlayer;
-local Camera = workspace.CurrentCamera;
+local Services = setmetatable({}, {
+    __index = function(self, Index)
+        local Service = game:GetService(Index);
 
-local AlreadyBoxed = {};
-local AlreadyCornered = {};
-local AlreadyTaged = {};
+        if Service then
+            self[Index] = Service;
 
-Instance.new("ScreenGui", game.CoreGui).Name = "Kaoru"
-local ChamsFolder = Instance.new("Folder")
-ChamsFolder.Name = "ChamsFolder"
-for _, GUI in next, game.CoreGui:GetChildren() do
-    if GUI:IsA('ScreenGui') and GUI.Name == 'Kaoru' then
-        ChamsFolder.Parent = GUI
-    end
-end
+            return Service;
+        end
+    end;
+})
 
-local function IsNotSameTeam(Item, Toggle)
-    if not Item:IsA("Player") then
-        return not Toggle or true;
-    end
-
-    return not Toggle or Item.Team ~= LocalPlayer.Team;
-end
-
-local function IsAlive(Item)
-    if not Item:IsA("Player") then
-        return true;
-    end
-
-    return Item and Item.Character and Item.Character:FindFirstChild("Humanoid") and Item.Character.Humanoid.Health > 0;
-end
-
-local function IsOnScreen(Part)
-    local _, OnScreen = Camera:WorldToViewportPoint(Part.Position);
-
-    return OnScreen;
-end
-
-local function GetCorners(Part)
-    local Size = Part.Size * Vector3.new(1, 1.5)
-    return {
-        TopRight = (Part.CFrame * CFrame.new(-Size.X, -Size.Y, 0)).Position;
-        BottomRight = (Part.CFrame * CFrame.new(-Size.X, Size.Y, 0)).Position;
-        TopLeft = (Part.CFrame * CFrame.new(Size.X, -Size.Y, 0)).Position;
-        BottomLeft = (Part.CFrame * CFrame.new(Size.X, Size.Y, 0)).Position;
-    };
-end
-
-local function NewLine(Color, Thickness)
-    local Line = Drawing.new("Line");
-
-    Line.Visible = false;
-    Line.From = Vector2.new(0, 0);
-    Line.To = Vector2.new(0, 0);
-    Line.Color = Color;
-    Line.Thickness = Thickness;
-
-    return Line;
-end
-
-local function FormatNametag(Item)
-    local HumanoidRootPart = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart");
-
-    if Item and Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") and Item.Character:FindFirstChild("Humanoid") then
-        if not IsAlive(Item) or Item.Character.Humanoid.Health <= 0 then
-            return ("[0] " .. Item.Name .. "| %sHP"):format(Item.Character.Humanoid.Health)
+local Initialized = setmetatable({}, {
+    __call = function(self, Type)
+        if self[Type] then
+            return true, "Already Initialized";
         end
 
-        return string.format("[%s] %s | %sHP", unpack({
-            HumanoidRootPart and tostring(math.round((Item.Character.HumanoidRootPart.Position - HumanoidRootPart.Position).Magnitude)) or "N/A",
-            Item.Name,
-            tostring(math.round(Item.Character.Humanoid.Health))
-        }));
-    elseif Item and not Item:IsA("Player") then
-        return string.format("[%s] %s", unpack({
-            HumanoidRootPart and tostring(math.round((Item.Position - HumanoidRootPart.Position).Magnitude)) or "N/A",
-            Item.Name
-        }));
-    end
+        self[Type] = true;
 
-    return "N/A";
-end
+        return false, "Initialized";
+    end;
+});
+
+local Types = setmetatable({}, {
+    __index = function(self, Type)
+        local Types = getrawmetatable(self).__index;
+        local NewType = newproxy(true);
+        local Metatable = getmetatable(NewType);
+
+        Metatable.__tostring = function()
+            return Type;
+        end
+
+        self[Type] = NewType;
+
+        return Types;
+    end;
+})
+
+local StorePlayer = setmetatable({}, {
+    __call = function(self, Type, PlayerName)
+        if not self[Type] then
+            self[Type] = {};
+        end
+
+        if not self[Type][PlayerName] then
+            self[Type][PlayerName] = true;
+
+            return false, "Stored";
+        end
+
+        return true, "Already Stored";
+    end;
+});
+
+local AddObject = setmetatable({}, {
+    __call = function(self, Type, Name, Object)
+        if not self[Type] then
+            self[Type] = {}
+        end
+
+        self[Type][Name] = Object
+
+        return Object
+    end
+})
+
+local GetObject = setmetatable({}, {
+    __call = function(self, Type, Name)
+        local Success, Failure = pcall(function()
+            return rawget(AddObject[Type], Name)
+        end)
+
+        return Success and Failure or false;
+    end
+})
+
+local Players = Services.Players;
+local LocalPlayer = Players.LocalPlayer;
+local Camera = Services.Workspace.CurrentCamera;
 
 local ESP = {}; do
-    local Chams = nil;
-
-    function ESP:Chams(List, Args)
-        local Color = Args.Color or Color3.fromRGB(255, 255, 255);
-        local ESPDist = Args.Distance or 1000;
-        local TeamCheck = Args.TeamCheck or false;
-
-        for _, Item in next, List do
-            if ChamsFolder:FindFirstChild(Item.Name) then
-                Chams = ChamsFolder[Item.Name];
-                Chams.Enabled = false;
-                Chams.FillColor = Color3.fromRGB(255, 255, 255);
-                Chams.OutlineColor = Color;
-            end
-
-            if Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
-                if ChamsFolder:FindFirstChild(Item.Name) == nil then
-                    local Highlight = Instance.new("Highlight");
-                    Highlight.Name = Item.Name;
-                    Highlight.Parent = ChamsFolder;
-                    Chams = Highlight;
-                end
-
-                Chams.Enabled = true;
-                Chams.Adornee = Item.Character or Item;
-                Chams.OutlineTransparency = 0;
-                Chams.DepthMode = Enum.HighlightDepthMode[(true and "AlwaysOnTop" or "Occluded")];
-                Chams.FillTransparency = 1;
-
-                local Distance = nil;
-                if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") then
-                    Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Item.Character.HumanoidRootPart.Position).Magnitude;
-                elseif not Item:IsA("Player") then
-                    Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Item.Position).Magnitude;
-                end
-
-                if Distance and Distance <= ESPDist then
-                    Chams.Enabled = true;
-                else
-                    Chams.Enabled = false;
-                end
-            end
-        end
+    function ESP:IsNotSameTeam(Player, Toggle)
+        return not Toggle or Player.Team ~= LocalPlayer.Team;
     end
 
-    local Boxes = {};
-    function ESP:Box(List, Args)
-        local Color = Args.Color or Color3.fromRGB(255, 255, 255);
-        local ESPDist = Args.Distance or 1000;
-        local TeamCheck = Args.TeamCheck or false;
+    function ESP:IsAlive(Player)
+        return Player and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character.Humanoid.Health > 0;
+    end
 
-        for _, Item in next, List do
-            if not table.find(AlreadyBoxed, Item.Name) then
-                local Box = Drawing.new("Quad");
-                Box.Visible = false;
-                Box.PointA = Vector2.new(0, 0);
-                Box.PointB = Vector2.new(0, 0);
-                Box.PointC = Vector2.new(0, 0);
-                Box.PointD = Vector2.new(0, 0);
-                Box.Color = Color3.fromRGB(255, 255, 255);
-                Box.Thickness = 1;
-                Box.Filled = false;
+    function ESP:IsOnScreen(Player, Part)
+        local _, OnScreen = Camera:WorldToViewportPoint(Player.Character[Part].Position);
 
-                Boxes[Item.Name] = Box;
-                table.insert(AlreadyBoxed, Item.Name);
+        return OnScreen;
+    end
+
+    function ESP:GetCorners(Part)
+        local Size = Part.Size * Vector3.new(1, 1.5)
+        return {
+            TopRight = (Part.CFrame * CFrame.new(-Size.X, -Size.Y, 0)).Position;
+            BottomRight = (Part.CFrame * CFrame.new(-Size.X, Size.Y, 0)).Position;
+            TopLeft = (Part.CFrame * CFrame.new(Size.X, -Size.Y, 0)).Position;
+            BottomLeft = (Part.CFrame * CFrame.new(Size.X, Size.Y, 0)).Position;
+        };
+    end
+
+    function ESP:FormatNametag(Player)
+        if Player and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character:FindFirstChild("Humanoid") then
+            local HumanoidRootPart = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart");
+
+            if not self:IsAlive(Player) or Player.Character.Humanoid.Health <= 0 then
+                return ("[0] " .. Player.Name .. "| %sHP"):format(Player.Character.Humanoid.Health)
             end
 
-            if Item and Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
-                local Corners = nil;
-                local OnScreen = nil;
-                local Vectors = nil;
+            return string.format("[%s] %s | %sHP", unpack({
+                HumanoidRootPart and tostring(math.round((Player.Character.HumanoidRootPart.Position - HumanoidRootPart.Position).Magnitude)) or "N/A",
+                Player.Name,
+                tostring(math.round(Player.Character.Humanoid.Health))
+            }));
+        end
 
-                if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") then
-                    Corners = GetCorners(Item.Character.HumanoidRootPart);
-                    OnScreen = IsOnScreen(Item.Character.HumanoidRootPart);
-                elseif not Item:IsA("Player") then
-                    Corners = GetCorners(Item);
-                    OnScreen = IsOnScreen(Item);
+        return "N/A";
+    end
+
+    local Box = {}; do
+        function Box:Draw(Args)
+            local Color = Args.Color or Color3.fromRGB(255, 255, 255);
+            local ESPDistance = Args.Distance or 1000;
+            local TeamCheck = Args.TeamCheck or false;
+
+            for _, Player in next, Players:GetPlayers() do
+                if not StorePlayer("Box", Player.Name) then
+                    local NewBox = Drawing.new("Quad");
+                    NewBox.Visible = false;
+                    NewBox.PointA = Vector2.new(0, 0);
+                    NewBox.PointB = Vector2.new(0, 0);
+                    NewBox.PointC = Vector2.new(0, 0);
+                    NewBox.PointD = Vector2.new(0, 0);
+                    NewBox.Color = Color3.fromRGB(255, 255, 255);
+                    NewBox.Thickness = 2;
+                    NewBox.Filled = false;
+
+                    local NewOutlinedBox = Drawing.new("Quad");
+                    NewOutlinedBox.Visible = false;
+                    NewOutlinedBox.PointA = Vector2.new(0, 0);
+                    NewOutlinedBox.PointB = Vector2.new(0, 0);
+                    NewOutlinedBox.PointC = Vector2.new(0, 0);
+                    NewOutlinedBox.PointD = Vector2.new(0, 0);
+                    NewOutlinedBox.Color = Color3.fromRGB(255, 255, 255);
+                    NewOutlinedBox.Thickness = 1;
+                    NewOutlinedBox.Filled = false;
+
+                    AddObject("Boxes", Player.Name, NewBox);
+                    AddObject("OutlinedBoxes", Player.Name, NewOutlinedBox);
+
+                    StorePlayer("Box", Player.Name)
                 end
 
-                if Corners then
-                    Vectors = {
+                if Player and Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and ESP:IsAlive(Player) then
+                    local InlineBox = GetObject("Boxes", Player.Name);
+                    local OutlinedBox = GetObject("OutlinedBoxes", Player.Name);
+                    
+                    local OnScreen = ESP:IsOnScreen(Player, "HumanoidRootPart");
+                    local Corners = ESP:GetCorners(Player.Character.HumanoidRootPart);
+                    local Vectors = {
                         Camera:WorldToViewportPoint(Corners.TopRight);
                         Camera:WorldToViewportPoint(Corners.BottomRight);
                         Camera:WorldToViewportPoint(Corners.BottomLeft);
                         Camera:WorldToViewportPoint(Corners.TopLeft);
                     };
-                end
 
-                if IsAlive(Item) and IsNotSameTeam(Item, TeamCheck) and OnScreen then
-                    if Boxes[Item.Name] then
-                        Boxes[Item.Name].Visible = true;
-                        Boxes[Item.Name].PointA = Vector2.new(Vectors[1].X, Vectors[1].Y);
-                        Boxes[Item.Name].PointB = Vector2.new(Vectors[2].X, Vectors[2].Y);
-                        Boxes[Item.Name].PointC = Vector2.new(Vectors[3].X, Vectors[3].Y);
-                        Boxes[Item.Name].PointD = Vector2.new(Vectors[4].X, Vectors[4].Y);
-                        Boxes[Item.Name].Color = Color;
-                    end
+                    if OnScreen and ESP:IsNotSameTeam(Player, TeamCheck) then
+                        local Distance = (Player.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude;
 
-                    local Distance = nil;
-                    if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
-                        Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Item.Character.HumanoidRootPart.Position).Magnitude;
-                    elseif not Item:IsA("Player") then
-                        Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Item.Position).Magnitude;
-                    end
+                        if InlineBox and OutlinedBox then
+                            InlineBox.Visible = true;
+                            InlineBox.PointA = Vector2.new(Vectors[1].X, Vectors[1].Y);
+                            InlineBox.PointB = Vector2.new(Vectors[2].X, Vectors[2].Y);
+                            InlineBox.PointC = Vector2.new(Vectors[3].X, Vectors[3].Y);
+                            InlineBox.PointD = Vector2.new(Vectors[4].X, Vectors[4].Y);
+                            InlineBox.Color = Color;
 
-                    if Distance and Distance <= ESPDist then
-                        if Boxes[Item.Name] then
-                            Boxes[Item.Name].Visible = true;
+                            OutlinedBox.Visible = true;
+                            OutlinedBox.PointA = Vector2.new(Vectors[1].X, Vectors[1].Y);
+                            OutlinedBox.PointB = Vector2.new(Vectors[2].X, Vectors[2].Y);
+                            OutlinedBox.PointC = Vector2.new(Vectors[3].X, Vectors[3].Y);
+                            OutlinedBox.PointD = Vector2.new(Vectors[4].X, Vectors[4].Y);
+                            OutlinedBox.Color = Color3.new()
+                        end
+
+                        if Distance <= ESPDistance then
+                            if InlineBox and OutlinedBox then
+                                InlineBox.Visible = true;
+                                OutlinedBox.Visible = true;
+                            end
+                        else
+                            if InlineBox and OutlinedBox then
+                                InlineBox.Visible = false;
+                                OutlinedBox.Visible = false;
+                            end
                         end
                     else
-                        if Boxes[Item.Name] then
-                            Boxes[Item.Name].Visible = false;
+                        if InlineBox and OutlinedBox then
+                            InlineBox.Visible = false;
+                            OutlinedBox.Visible = false;
                         end
                     end
                 else
-                    if Boxes[Item.Name] then
-                        Boxes[Item.Name].Visible = false;
+                    local InlineBox = GetObject("Boxes", Player.Name);
+                    local OutlinedBox = GetObject("OutlinedBoxes", Player.Name);
+
+                    if InlineBox and OutlinedBox then
+                        InlineBox.Visible = false;
+                        OutlinedBox.Visible = false;
                     end
                 end
             end
-        end
-    end
+        end;
 
-    local Lines = {};
-    local Parts = {};
-    function ESP:Corner(List, Args)
-        local Color = Args.Color or Color3.fromRGB(255, 255, 255);
-        local ESPDist = Args.Distance or 1000;
-        local TeamCheck = Args.TeamCheck or false;
+        function Box:Destroy(Player)
+            local InlineBox = GetObject("Boxes", Player.Name);
+            local OutlinedBox = GetObject("OutlinedBoxes", Player.Name);
 
-        for _, Item in next, List do
-            if Item and Item ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
-                if not table.find(AlreadyCornered, Item.Name) then
-                    local ItemLines = {
-                        TopLeft1 = NewLine(Color3.fromRGB(255, 255, 255), 1);
-                        TopLeft2 = NewLine(Color3.fromRGB(255, 255, 255), 1);
+            if InlineBox and OutlinedBox then
+                InlineBox:Destroy();
+                InlineBox = nil;
 
-                        TopRight1 = NewLine(Color3.fromRGB(255, 255, 255), 1);
-                        TopRight2 = NewLine(Color3.fromRGB(255, 255, 255), 1);
-
-                        BottomLeft1 = NewLine(Color3.fromRGB(255, 255, 255), 1);
-                        BottomLeft2 = NewLine(Color3.fromRGB(255, 255, 255), 1);
-
-                        BottomRight1 = NewLine(Color3.fromRGB(255, 255, 255), 1);
-                        BottomRight2 = NewLine(Color3.fromRGB(255, 255, 255), 1);
-                    };
-
-                    local OrigenPart = Instance.new("Part");
-                    OrigenPart.Parent = workspace;
-                    OrigenPart.Transparency = 1;
-                    OrigenPart.CanCollide = false;
-                    OrigenPart.Size = Vector3.new(1, 1, 1);
-                    OrigenPart.Position = Vector3.new(0, 0, 0);
-
-                    Parts[Item.Name] = OrigenPart;
-                    Lines[Item.Name] = ItemLines;
-                    table.insert(AlreadyCornered, Item.Name);
-                end
-
-                local OnScreen = nil;
-                local OrigenPart = Parts[Item.Name];
-                local ItemLines = Lines[Item.Name];
-
-                if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
-                    OnScreen = IsOnScreen(Item.Character.HumanoidRootPart);
-                elseif not Item:IsA("Player") then
-                    OnScreen = IsOnScreen(Item);
-                end
-
-                if IsAlive(Item) and IsNotSameTeam(Item, TeamCheck) and OnScreen then
-                    local Distance = nil;
-                    if Item:IsA("Player") and Item.Character and Item.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Item, TeamCheck) then
-                        Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Item.Character.HumanoidRootPart.Position).Magnitude;
-                    elseif not Item:IsA("Player") then
-                        Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Item.Position).Magnitude;
-                    end
-
-                    local DebugPart = (Item.Character.HumanoidRootPart or Item)
-                    OrigenPart.Size = Vector3.new(DebugPart.Size.X, DebugPart.Size.Y * 1.5, DebugPart.Size.Z)
-                    OrigenPart.CFrame = CFrame.new(DebugPart.CFrame.Position, Camera.CFrame.Position)
-                    local SizeX = OrigenPart.Size.X
-                    local SizeY = OrigenPart.Size.Y
-                    local TopLeft = Camera:WorldToViewportPoint((OrigenPart.CFrame * CFrame.new(SizeX, SizeY, 0)).Position)
-                    local TopRight = Camera:WorldToViewportPoint((OrigenPart.CFrame * CFrame.new(-SizeX, SizeY, 0)).Position)
-                    local BottomLeft = Camera:WorldToViewportPoint((OrigenPart.CFrame * CFrame.new(SizeX, -SizeY, 0)).Position)
-                    local BottomRight = Camera:WorldToViewportPoint((OrigenPart.CFrame * CFrame.new(-SizeX, -SizeY, 0)).Position)
-
-                    local Ratio = (Camera.CFrame.Position - DebugPart.Position).Magnitude;
-                    local Offset = math.clamp(1 / Ratio * 750, 2, 300);
-
-                    ItemLines.TopLeft1.From = Vector2.new(TopLeft.X, TopLeft.Y)
-                    ItemLines.TopLeft1.To = Vector2.new(TopLeft.X + Offset, TopLeft.Y)
-                    ItemLines.TopLeft2.From = Vector2.new(TopLeft.X, TopLeft.Y)
-                    ItemLines.TopLeft2.To = Vector2.new(TopLeft.X, TopLeft.Y + Offset)
-
-                    ItemLines.TopRight1.From = Vector2.new(TopRight.X, TopRight.Y)
-                    ItemLines.TopRight1.To = Vector2.new(TopRight.X - Offset, TopRight.Y)
-                    ItemLines.TopRight2.From = Vector2.new(TopRight.X, TopRight.Y)
-                    ItemLines.TopRight2.To = Vector2.new(TopRight.X, TopRight.Y + Offset)
-
-                    ItemLines.BottomLeft1.From = Vector2.new(BottomLeft.X, BottomLeft.Y)
-                    ItemLines.BottomLeft1.To = Vector2.new(BottomLeft.X + Offset, BottomLeft.Y)
-                    ItemLines.BottomLeft2.From = Vector2.new(BottomLeft.X, BottomLeft.Y)
-                    ItemLines.BottomLeft2.To = Vector2.new(BottomLeft.X, BottomLeft.Y - Offset)
-
-                    ItemLines.BottomRight1.From = Vector2.new(BottomRight.X, BottomRight.Y)
-                    ItemLines.BottomRight1.To = Vector2.new(BottomRight.X - Offset, BottomRight.Y)
-                    ItemLines.BottomRight2.From = Vector2.new(BottomRight.X, BottomRight.Y)
-                    ItemLines.BottomRight2.To = Vector2.new(BottomRight.X, BottomRight.Y - Offset)
-
-
-                    if Distance and Distance <= ESPDist then
-                        for _, Line in next, ItemLines do
-                            Line.Visible = true;
-                            Line.Color = Color;
-                        end
-                    else
-                        for _, Line in next, ItemLines do
-                            Line.Visible = false;
-                        end
-                    end
-                else
-                    for _, Line in next, ItemLines do
-                        Line.Visible = false;
-                    end
-                end
+                OutlinedBox:Destroy();
+                OutlinedBox = nil;
             end
-        end
+        end;
     end
 
-    local Tags = {};
-    function ESP:Nametag(List, Args)
-        local Color = Args.Color or Color3.fromRGB(255, 255, 255);
-        local TeamCheck = Args.TeamCheck or false;
-        local ESPDist = Args.ESPDist or 1000;
+    local Nametag = {}; do
+        function Nametag:Draw(Args)
+            local Color = Args.Color or Color3.fromRGB(255, 255, 255);
+            local ESPDistance = Args.Distance or 1000;
+            local TeamCheck = Args.TeamCheck or false;
 
-        for _, Player in next, List do
-            if Player and Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and IsNotSameTeam(Player, TeamCheck) then
-                if not table.find(AlreadyTaged, Player.Name) then
+            for _, Player in next, Players:GetPlayers() do
+                if not StorePlayer("Nametag", Player.Name) then
                     local NewTag = Drawing.new("Text");
                     NewTag.Visible = true;
                     NewTag.Text = "";
@@ -332,55 +249,69 @@ local ESP = {}; do
                     NewTag.Color = Color3.fromRGB(255, 255, 255);
                     NewTag.Outline = true;
 
-                    Tags[Player.Name] = NewTag;
-                    table.insert(AlreadyTaged, Player.Name);
+                    AddObject("Nametags", Player.Name, NewTag);
+                    StorePlayer("Nametag", Player.Name)
                 end
 
-                local Nametag = Tags[Player.Name];
+                if Player and Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+                    if Player.Character:FindFirstChild("Head") and ESP:IsAlive(Player) and ESP:IsOnScreen(Player, "Head") and ESP:IsNotSameTeam(Player, TeamCheck) then
+                        local Distance = (Player.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude;
+                        local HeadPosition = Camera:WorldToViewportPoint(Player.Character.Head.Position);
 
-                if IsOnScreen(Player.Character.HumanoidRootPart) and IsAlive(Player) and IsNotSameTeam(Player, TeamCheck) and Player.Character:FindFirstChild("Head") then
-                    local HeadPosition = Camera:WorldToViewportPoint(Player.Character.Head.Position);
+                        local FoundNametag = GetObject("Nametags", Player.Name);
 
-                    if Tags[Player.Name] then
-                        Nametag.Text = FormatNametag(Player);
-                        Nametag.Font = 3;
-                        Nametag.Size = 16;
-                        Nametag.ZIndex = 2;
-                        Nametag.Visible = true;
-                        Nametag.Position = Vector2.new(HeadPosition.X - (Nametag.TextBounds.X / 2), HeadPosition.Y - (Nametag.TextBounds.Y * 1.25));
-                        Nametag.Color = Color;
-                    end
+                        if FoundNametag then
+                            FoundNametag.Text = ESP:FormatNametag(Player);
+                            FoundNametag.Font = 3;
+                            FoundNametag.Size = 16;
+                            FoundNametag.ZIndex = 2;
+                            FoundNametag.Visible = true;
+                            FoundNametag.Position = Vector2.new(HeadPosition.X - (FoundNametag.TextBounds.X / 2), HeadPosition.Y - (FoundNametag.TextBounds.Y * 1.25));
+                            FoundNametag.Color = Color;
+                        end
 
-                    local Distance = nil;
-
-                    pcall(function()
-                        Distance = (LocalPlayer.Character.HumanoidRootPart.Position - Player.Character.HumanoidRootPart.Position).Magnitude;
-                    end)
-
-                    if Distance and Distance <= ESPDist then
-                        if Tags[Player.Name] then
-                            Nametag.Visible = true;
+                        if Distance <= ESPDistance then
+                            if FoundNametag then
+                                FoundNametag.Visible = true;
+                            end
+                        else
+                            if FoundNametag then
+                                FoundNametag.Visible = false;
+                            end
                         end
                     else
-                        if Tags[Player.Name] then
-                            Nametag.Visible = false;
+                        local FoundNametag = GetObject("Nametags", Player.Name);
+
+                        if FoundNametag then
+                            FoundNametag.Visible = false;
                         end
                     end
                 else
-                    if Tags[Player.Name] then
-                        Nametag.Visible = false;
+                    local FoundNametag = GetObject("Nametags", Player.Name);
+
+                    if FoundNametag then
+                        FoundNametag.Visible = false;
                     end
                 end
             end
-        end
+        end;
+
+        function Nametag:Destroy(Player)
+            local FoundNametag = GetObject("Nametags", Player.Name);
+
+            if FoundNametag then
+                FoundNametag:Destroy();
+                FoundNametag = nil;
+            end
+        end;
     end
 
-    function ESP:Init(Type, List, Args)
-        local RainbowEsp = Args.Rainbow or false;
+    function ESP:Init(Type, Args)
+        local Rainbow = Args.Rainbow or false;
 
         if typeof(Type) == "table" then
             for _, NewType in next, Type do
-                self:Init(NewType, List, Args);
+                self:Init(NewType, Args);
             end
 
             return;
@@ -388,109 +319,55 @@ local ESP = {}; do
 
         task.spawn(function()
             while true do task.wait();
-                if not table.find(Initialized, Type) then break; end
+                if not Initialized(Type) then break; end
 
-                local NewList = ((List == Players and Players:GetPlayers()) or List:GetChildren()) or error("Invalid List!");
-
-                if RainbowEsp then
+                if Rainbow then
                     Args.Color = Color3.fromHSV(tick() / 10 % 1, 1, 1);
                 end
 
-                self[Type](self, NewList, Args);
+                Types[Type]:Draw(Args);
             end
         end)
 
-        table.insert(Initialized, Type);
+        Initialized(Type);
     end
 
-    function ESP:DestroyAll()
-        for _, Line in next, Lines do
-            for _, Line in next, Line do
-                Line:Destroy();
+    function ESP:DeInit()
+        for _, Player in next, Players:GetPlayers() do
+            ESP:Destroy(Player);
+        end
+
+        for Type,_ in next, Initialized do
+            rawset(Initialized, Type, nil);
+        end
+    end
+
+    function ESP:Destroy(Player)
+        for _, Type in next, Types do
+            if Type.Destroy then
+                Type:Destroy(Player);
             end
         end
 
-        for _, Part in next, Parts do
-            Part:Destroy();
-        end
-
-        for _, Box in next, Boxes do
-            Box.Visible = false;
-        end
-
-        ChamsFolder:ClearAllChildren();
-
-        for _, Tag in next, Tags do
-            Tag.Visible = false;
-        end
-
-        Lines = {};
-        Parts = {};
-        Boxes = {};
-        Tags = {};
-    end
-
-    function ESP:Destroy(Item)
-        if Lines[Item.Name] then
-            for _, Line in next, Lines[Item.Name] do
-                Line:Destroy();
-            end
-        end
-
-        if Parts[Item.Name] then
-            Parts[Item.Name]:Destroy();
-        end
-
-        if Boxes[Item.Name] then
-            Boxes[Item.Name].Visible = false;
-        end
-
-        if ChamsFolder:FindFirstChild(Item.Name) then
-            ChamsFolder[Item.Name]:Destroy();
-        end
-
-        if Tags[Item.Name] then
-            Tags[Item.Name].Visible = false;
+        for Type,_ in next, Initialized do
+            rawset(StorePlayer, Type, nil);
         end
     end
 
-    function ESP:DeInit(Type)
-        if typeof(Type) == "table" then
-            for _, NewType in next, Type do
-                self:DeInit(NewType);
-            end
-
-            return;
-        end
-
-        if table.find(Initialized, Type) then
-            table.remove(Initialized, table.find(Initialized, Type));
-
-            self:DestroyAll();
-        end
-
-        table.clear(AlreadyTaged);
-        table.clear(AlreadyBoxed);
-        table.clear(AlreadyCornered);
-    end
-end;
+    Types.Box = Box;
+    Types.Nametag = Nametag;
+end
 
 Players.PlayerRemoving:Connect(function(Player)
     ESP:Destroy(Player);
-end);
-
-print("Loaded ESP.");
+end)
 
 return ESP;
 
--- local Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
--- local ESP = Functions.ESP;
-
--- local Players = game:GetService("Players");
-
--- ESP:Init({"Box", "Nametag"}, Players, {
---     Color = Color3.fromRGB(255, 0, 0),
---     TeamCheck = false,
+-- ESP:Init({"Box", "Nametag"}, {
+--     Color = Color3.fromRGB(255, 255, 255),
 --     Distance = 1000,
---     Rainbow = true,
--- });
+--     TeamCheck = false,
+--     --Rainbow = false
+-- })
+
