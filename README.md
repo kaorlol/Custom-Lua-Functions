@@ -49,6 +49,7 @@ ESP:Init({"Box", "Nametag"}, {
                 Box
                 Nametag
                 Box3D
+		Corner
 
         ESP:DeInit()
             Deinitializes all ESPs.
