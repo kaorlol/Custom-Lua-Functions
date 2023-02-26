@@ -21,15 +21,18 @@ local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.co
 local ESP = Functions.ESP;
 local Players = game:GetService("Players");
 
--- Init loops through the List with the args using a selected ESP.
-ESP:Init("Box", Players, {
+-- Example:
+ESP:Init({"Box", "Nametag"}, {
     Color = Color3.fromRGB(255, 255, 255),
-    TeamCheck = false,
     Distance = 1000,
-    Rainbow = false,
-});
+    TeamCheck = false,
+    Rainbow = true,
+    FaceCamera = true,
+    Healthbar = true,
+})
 
 --[[
+
     Documentation:
         ESP:Init(Type, Args)
             Type: string or table
