@@ -19,7 +19,6 @@ print(CreateHitBox) -- Output: Function.
 ```lua
 local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
 local ESP = Functions.ESP;
-local Players = game:GetService("Players");
 
 -- Example:
 ESP:Init({"Box", "Nametag"}, {
