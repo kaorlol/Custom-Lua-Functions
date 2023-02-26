@@ -107,6 +107,7 @@ local ESP = {}; do
         return OnScreen;
     end
 
+
     function ESP:GetCorners(Part, FaceCamera)
         FaceCamera = FaceCamera or false;
 
@@ -114,7 +115,9 @@ local ESP = {}; do
         local PartCFrame = Part.CFrame;
 
         if FaceCamera then
-            PartCFrame = CFrame.new(Part.Position, Camera.CFrame.Position);
+            local LookVector = (Part.Position - Camera.CFrame.Position).Unit;
+
+            PartCFrame = CFrame.new(Part.Position, Part.Position + Vector3.new(LookVector.X, 0, LookVector.Z));
         end
 
         return {
@@ -278,18 +281,19 @@ local ESP = {}; do
 
                     if OnScreen and ESP:IsNotSameTeam(Player, TeamCheck) then
                         local Distance = (Player.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude;
+                        local TopRight, BottomRight, BottomLeft, TopLeft = unpack(Vectors);
 
                         if InlineBox then
                             InlineBox.Visible = true;
-                            InlineBox.PointA = Vector2.new(Vectors[1].X, Vectors[1].Y);
-                            InlineBox.PointB = Vector2.new(Vectors[2].X, Vectors[2].Y);
-                            InlineBox.PointC = Vector2.new(Vectors[3].X, Vectors[3].Y);
-                            InlineBox.PointD = Vector2.new(Vectors[4].X, Vectors[4].Y);
+                            InlineBox.PointA = Vector2.new(TopRight.X, TopRight.Y);
+                            InlineBox.PointB = Vector2.new(BottomRight.X, BottomRight.Y);
+                            InlineBox.PointC = Vector2.new(BottomLeft.X, BottomLeft.Y);
+                            InlineBox.PointD = Vector2.new(TopLeft.X, TopLeft.Y);
                             InlineBox.Color = Color;
 
                             AddObject("Left Points", Player.Name, {
-                                ESP:PointOffset(InlineBox.PointC, Vector2.new(-7.5, 0));
-                                ESP:PointOffset(InlineBox.PointD, Vector2.new(-7.5, 0));
+                                ESP:PointOffset(InlineBox.PointA, Vector2.new(-7.5, 0));
+                                ESP:PointOffset(InlineBox.PointB, Vector2.new(-7.5, 0));
                             });
                         end
 
@@ -338,9 +342,9 @@ local ESP = {}; do
                     local NewTag = Drawing.new("Text");
                     NewTag.Visible = true;
                     NewTag.Text = "";
-                    NewTag.Size = 14;
+                    NewTag.Size = 16;
                     NewTag.Color = Color3.fromRGB(255, 255, 255);
-                    NewTag.Outline = false;
+                    NewTag.Outline = true;
                     NewTag.Center = true;
                     NewTag.Font = 3;
                     NewTag.ZIndex = 2;
@@ -546,7 +550,6 @@ local ESP = {}; do
                             end
                         end
                     end
-
                 end
             end
         end
