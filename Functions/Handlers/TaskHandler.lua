@@ -46,7 +46,13 @@ local TaskScheduler = {}; do
 
     function TaskScheduler:Step(Name, ...)
         self.RunTasks = table.clone(self.Tasks);
-        self:ProsessTask(self.RunTasks[Name], ...);
+
+        for Index, Task in next, self.RunTasks do
+            if Task.Name == Name then
+                self:ProsessTask(Task, ...);
+                break;
+            end
+        end
     end
 
     function TaskScheduler:ProsessTask(Task, ...)
