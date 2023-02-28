@@ -1,83 +1,67 @@
-local Task = {}; do
-    Task.__index = Task;
-    Task.__tostring = function(self)
-        return string.format("Task(%s)", self.Name);
+local RunService = cloneref(game:GetService("RunService"));
+local TaskScheduler = {}; do
+    TaskScheduler.__index = TaskScheduler;
+
+    function TaskScheduler.new(Name)
+        return setmetatable({
+            Name = Name;
+            Connections = {};
+            Tasks = {};
+            Scheduled = {};
+            ParentSchedulers = {};
+        }, TaskScheduler);
     end
 
-    function Task.new(Name, Function, Delay, ...)
-        local self = setmetatable({}, Task);
+    function TaskScheduler:Add(Name, Task)
+        local RunTask = Task;
 
-        self.Name = Name;
-        self.Function = Function;
-        self.Delay = Delay;
-        self.Args = {...};
-
-        self.Running = false;
-        self.Stopped = false;
-
-        return self;
-    end
-
-    function Task:Start()
-        if self.Running then
-            return warn("Task is already running");
-        end
-
-        self.Running = true;
-
-        local Success, Error = pcall(function()
-            task.wait(self.Delay);
-            self.Function(unpack(self.Args));
-        end)
-
-        if not Success then
-            warn(Error);
-        end
-
-        self.Running = false;
-        self.Stopped = true;
-    end
-
-    function Task:Stop()
-        self.Stopped = true;
-    end
-end
-
-local TaskHandler = {}; do
-    TaskHandler.__index = TaskHandler;
-    TaskHandler.__tostring = function(self)
-        return string.format("TaskHandler(%s)", self.Name);
-    end
-
-    function TaskHandler.new(Name)
-        local self = setmetatable({}, TaskHandler);
-
-        self.Name = Name;
-        self.Tasks = {};
-
-        return self;
-    end
-
-    function TaskHandler:AddTask(Name, Function, Delay, ...)
-        local Task = Task.new(Name, Function, Delay, ...);
-        table.insert(self.Tasks, Task);
-
-        return Task;
-    end
-
-    function TaskHandler:Start()
-        for _, Task in next, self.Tasks do
-            if not Task.Stopped then
-                Task:Start();
+        if typeof(Task) == "table" and Task.Scheduled then
+            RunTask = function(...)
+                Task:Step(...);
             end
         end
+
+        table.insert(self.Tasks, {
+            Name = Name;
+            Task = RunTask;
+        });
+
+        return self;
     end
 
-    function TaskHandler:Stop()
-        for _, Task in next, self.Tasks do
-            Task:Stop();
+    function TaskScheduler:Remove(Name)
+        for Index, Task in next, self.Tasks do
+            if Task.Name == Name then
+                if self.Connections[Name] then
+                    self.Connections[Name]:Disconnect();
+                    self.Connections[Name] = nil;
+                end
+
+                table.remove(self.Tasks, Index);
+            end
         end
+
+        return self;
+    end
+
+    function TaskScheduler:Step(...)
+        self.RunTasks = table.clone(self.Tasks);
+        self:ProsessTasks(...);
+    end
+
+    function TaskScheduler:ProsessTasks(...)
+        for _, Task in next, self.RunTasks do
+            Task.Task(...);
+        end
+    end
+
+    function TaskScheduler:Heartbeat(Step)
+        local Heartbeat = RunService.Heartbeat;
+
+        self.Connections[Step] = Heartbeat:Connect(function(...)
+            self:Step(...);
+        end);
     end
 end
 
-return TaskHandler;
+return TaskScheduler;
