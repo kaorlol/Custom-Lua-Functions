@@ -50,8 +50,16 @@ local TaskScheduler = {}; do
     end
 
     function TaskScheduler:ProsessTasks(...)
-        for _, Task in next, self.RunTasks do
-            Task.Task(...);
+        for Index, Task in next, self.RunTasks do
+            self:ProsessTask(Task, ...);
+        end
+    end
+
+    function TaskScheduler:ProsessTask(Task, ...)
+        local Success, Error = pcall(Task.Task, ...);
+
+        if not Success then
+            warn(Error);
         end
     end
 
