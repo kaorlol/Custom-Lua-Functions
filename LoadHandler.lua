@@ -25,7 +25,7 @@ local function FormatFunctions()
 
     for _, Function in next, Functions do
         local FunctionName = Function:match("([^/]+)$");
-        FormattedFunctions[FunctionName:gsub(".lua", "")] = loadstring(game:HttpGetAsync(Function))();
+        FormattedFunctions[FunctionName:gsub(".lua", "")] = game:HttpGetAsync(Function);
     end
 
     return FormattedFunctions;
@@ -33,10 +33,24 @@ end
 
 
 local function LoadHandler(Name)
-    local Handlers = FormatFunctions();
+    local Functions = FormatFunctions();
 
-    if Handlers[Name] then
-        return Handlers[Name];
+    if typeof(Name) == "table" then
+        local Handlers = {};
+
+        for _, HandlerName in next, Name do
+            if Functions[HandlerName] then
+                Handlers[HandlerName] = loadstring(Functions[HandlerName])();
+            else
+                warn("Handler not found");
+            end
+        end
+
+        return Handlers;
+    end
+
+    if Functions[Name] then
+        return loadstring(Functions[Name])();
     end
 
     warn("Handler not found");
