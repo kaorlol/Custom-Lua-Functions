@@ -29,7 +29,7 @@ local TaskScheduler = {}; do
         return self;
     end
 
-    function TaskScheduler:Remove(Name)
+    function TaskScheduler:Remove(Name, Function)
         for Index, Task in next, self.Tasks do
             if Task.Name == Name then
                 if self.Connections[Name] then
@@ -39,6 +39,10 @@ local TaskScheduler = {}; do
 
                 table.remove(self.Tasks, Index);
             end
+        end
+
+        if Function then
+            Function();
         end
 
         return self;
