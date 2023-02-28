@@ -44,15 +44,9 @@ local TaskScheduler = {}; do
         return self;
     end
 
-    function TaskScheduler:Step(...)
+    function TaskScheduler:Step(Name, ...)
         self.RunTasks = table.clone(self.Tasks);
-        self:ProsessTasks(...);
-    end
-
-    function TaskScheduler:ProsessTasks(...)
-        for Index, Task in next, self.RunTasks do
-            self:ProsessTask(Task, ...);
-        end
+        self:ProsessTask(self.RunTasks[Name], ...);
     end
 
     function TaskScheduler:ProsessTask(Task, ...)
@@ -67,7 +61,7 @@ local TaskScheduler = {}; do
         local Heartbeat = RunService.Heartbeat;
 
         self.Connections[Step] = Heartbeat:Connect(function(...)
-            self:Step(...);
+            self:Step(Step, ...);
         end);
     end
 end
