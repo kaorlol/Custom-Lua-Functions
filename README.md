@@ -61,4 +61,35 @@ ESP:Init({"Box", "Nametag"}, {
             Destroys all ESPs for a specific player.
 ]]--
 
+### TaskHandler:
+
+local LoadHandler = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/LoadHandler.lua"))();
+local Handler = LoadHandler("TaskHandler");
+
+--[[
+    TaskHandler Documentation:
+        TaskHandler:Add(Name, Task);
+        TaskHandler:Remove(Name, Function: Optional);
+        TaskHandler:Heartbeat(Name): Runs the task every heartbeat;
+        TaskHandler:Step(Name, ...): Runs the task once;
+]]
+
+local TaskHandler = Handler.new("Test");
+local Players = game:GetService("Players");
+local LocalPlayer = Players.LocalPlayer;
+
+TaskHandler:Add("Speed", function()
+    LocalPlayer.Character.Humanoid.WalkSpeed = 100;
+end);
+
+TaskHandler:Add("Jump", function()
+    LocalPlayer.Character.Humanoid.JumpPower = 100;
+end);
+
+TaskHandler:Heartbeat("Speed");
+
+TaskHandler:Remove("Speed", function()
+    LocalPlayer.Character.Humanoid.WalkSpeed = 16;
+end);
+
 ```
