@@ -1,6 +1,6 @@
 # Custom Lua Functions
 
-### Example:
+### filtergc and rconsolelog:
 ```lua
 local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
 local rconsolelog = Functions.rconsolelog;
@@ -15,7 +15,7 @@ local CreateHitBox = filtergc("function", {
 print(CreateHitBox) -- Output: Function.
 ```
 
-### ESP Example:
+### ESP:
 ```lua
 local Functions = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Loader.lua"))();
 local ESP = Functions.ESP;
