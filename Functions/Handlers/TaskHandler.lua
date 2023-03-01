@@ -67,8 +67,13 @@ local TaskScheduler = {}; do
         end
     end
 
-    function TaskScheduler:Heartbeat(Step)
-        local Heartbeat = RunService.Heartbeat;
+    function TaskScheduler:Repeat(Method, Step)
+        local Heartbeat = RunService[Method];
+
+        if not Heartbeat then
+            warn("Invalid method");
+            return;
+        end
 
         self.Connections[Step] = Heartbeat:Connect(function(...)
             self:Step(Step, ...);
