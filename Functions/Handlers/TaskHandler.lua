@@ -5,7 +5,7 @@ local TaskScheduler = {}; do
     function TaskScheduler.new(Name)
         return setmetatable({
             Name = Name;
-            Connections = {};
+            Connection = {};
             Tasks = {};
             Scheduled = {};
             ParentSchedulers = {};
@@ -24,25 +24,18 @@ local TaskScheduler = {}; do
         table.insert(self.Tasks, {
             Name = Name;
             Task = RunTask;
+            Toggled = false;
         });
 
         return self;
     end
 
-    function TaskScheduler:Remove(Name, Function)
+    function TaskScheduler:Toggle(Name, Toggle)
         for Index, Task in next, self.Tasks do
             if Task.Name == Name then
-                if self.Connections[Name] then
-                    self.Connections[Name]:Disconnect();
-                    self.Connections[Name] = nil;
-                end
-
-                table.remove(self.Tasks, Index);
+                self.Tasks[Index].Toggled = Toggle;
+                break;
             end
-        end
-
-        if Function then
-            Function();
         end
 
         return self;
@@ -51,7 +44,7 @@ local TaskScheduler = {}; do
     function TaskScheduler:Step(Name, ...)
         self.RunTasks = table.clone(self.Tasks);
 
-        for Index, Task in next, self.RunTasks do
+        for _, Task in next, self.RunTasks do
             if Task.Name == Name then
                 self:ProsessTask(Task, ...);
                 break;
@@ -67,16 +60,15 @@ local TaskScheduler = {}; do
         end
     end
 
-    function TaskScheduler:Repeat(Method, Step)
-        local Heartbeat = RunService[Method];
+    function TaskScheduler:Repeat(Step)
+        local Heartbeat = RunService.Heartbeat;
 
-        if not Heartbeat then
-            warn("Invalid method");
-            return;
-        end
-
-        self.Connections[Step] = Heartbeat:Connect(function(...)
-            self:Step(Step, ...);
+        self.Connection[Step] = Heartbeat:Connect(function(...)
+            for _, Task in next, self.RunTasks do
+                if Task.Toggled then
+                    self:Step(Task.Name, ...);
+                end
+            end
         end);
     end
 end
