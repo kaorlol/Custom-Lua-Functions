@@ -64,7 +64,7 @@ local TaskScheduler = {}; do
         end
     end
 
-    function TaskScheduler:Repeat()
+    function TaskScheduler:Heartbeat()
         local Heartbeat = RunService.Heartbeat;
         self.RunTasks = table.clone(self.Tasks);
 
