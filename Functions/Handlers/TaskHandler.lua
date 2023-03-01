@@ -64,10 +64,11 @@ local TaskScheduler = {}; do
         end
     end
 
-    function TaskScheduler:Repeat(Step)
+    function TaskScheduler:Repeat()
         local Heartbeat = RunService.Heartbeat;
+        self.RunTasks = table.clone(self.Tasks);
 
-        self.Connection[Step] = Heartbeat:Connect(function(...)
+        self.Connection = Heartbeat:Connect(function(...)
             for _, Task in next, self.RunTasks do
                 if Task.Toggled then
                     self:Step(Task.Name, ...);
