@@ -30,12 +30,16 @@ local TaskScheduler = {}; do
         return self;
     end
 
-    function TaskScheduler:Toggle(Name, Toggle)
+    function TaskScheduler:Toggle(Name, Toggle, OffFunction)
         for Index, Task in next, self.Tasks do
             if Task.Name == Name then
                 self.Tasks[Index].Toggled = Toggle;
                 break;
             end
+        end
+
+        if not Toggle and OffFunction then
+            OffFunction();
         end
 
         return self;
