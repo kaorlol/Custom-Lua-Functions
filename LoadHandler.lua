@@ -1,5 +1,11 @@
 local HandlersFolder = "https://github.com/Uvxtq/Custom-Lua-Functions/tree/main/Functions/Handlers";
 
+local function ReplaceSpace(String)
+    if String:find(" ") then
+        return String:gsub(" ", "%%20");
+    end
+end
+
 local function MakeRaw(Url)
     local NoBlob = Url:gsub("/blob", "");
 
@@ -33,6 +39,7 @@ end
 
 
 local function LoadHandler(Name)
+    Name = ReplaceSpace(Name);
     local Functions = FormatFunctions();
 
     if typeof(Name) == "table" then
