@@ -21,18 +21,14 @@ LocalPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new(0, 0));
 end)
 
-local function InitESP(Window)
-    if not Window then
+local function InitESP(Tab)
+    if not Tab then
         return;
     end
 
-    local Tabs = {
-        ["ESP Tab"] = Window:AddTab("ESP"),
-    };
-
-    local ESPTab = Tabs["ESP Tab"]:AddLeftGroupbox("Enabled");
-    local ESPSettingsTab = Tabs["ESP Tab"]:AddRightGroupbox("Settings");
-    local ESPColorsTab = Tabs["ESP Tab"]:AddLeftGroupbox("Colors");
+    local ESPTab = Tab:AddLeftGroupbox("Enabled");
+    local ESPSettingsTab = Tab:AddRightGroupbox("Settings");
+    local ESPColorsTab = Tab:AddLeftGroupbox("Colors");
 
     -- << ESP >> --
 
