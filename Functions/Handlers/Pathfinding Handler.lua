@@ -26,6 +26,9 @@ local Pathfinding = {}; do
 
         self.Lines = {};
 
+        self.Running = false;
+        self.Stop = false;
+
         return self;
     end
 
@@ -70,6 +73,16 @@ local Pathfinding = {}; do
 
         task.spawn(function()
             while #self.Lines > 0 do task.wait()
+                if self.Stop then
+                    for _, Line in next, self.Lines do
+                        Line.Line:Remove();
+                    end
+
+                    self.Lines = {};
+
+                    return false, "Stopped visualizing path";
+                end
+
                 for _, Line in next, self.Lines do
                     local _, OnScreen = Camera:WorldToViewportPoint(Line.From);
 
@@ -90,29 +103,47 @@ local Pathfinding = {}; do
     function Pathfinding:MoveThroughPath(Path)
         local Waypoints = Path:GetWaypoints();
 
-        for Waypoint = 1, #Waypoints do
-            if Waypoints[Waypoint].Action == Enum.PathWaypointAction.Jump then
-                self.Humanoid.Jump = true;
-                self.Humanoid:MoveTo(Waypoints[Waypoint + 1].Position);
-                self.Humanoid.MoveToFinished:Wait();
-            else
-                self.Humanoid:MoveTo(Waypoints[Waypoint].Position);
-                self.Humanoid.MoveToFinished:Wait();
-            end
-        end
+        self.Running = true;
 
-        if #self.Lines > 0 then
-            for _, Line in next, self.Lines do
-                if Line.Line then
-                    Line.Line:Destroy();
-                    Line.Line.Visible = false;
+        task.spawn(function()
+            for Waypoint = 1, #Waypoints do
+
+                if self.Stop then
+                    self.Running = false;
+                    self.Stop = false;
+
+                    return false, "Stopped moving through path";
+                end
+
+                if Waypoints[Waypoint].Action == Enum.PathWaypointAction.Jump then
+                    self.Humanoid.Jump = true;
+                    self.Humanoid:MoveTo(Waypoints[Waypoint + 1].Position);
+                    self.Humanoid.MoveToFinished:Wait();
+                else
+                    self.Humanoid:MoveTo(Waypoints[Waypoint].Position);
+                    self.Humanoid.MoveToFinished:Wait();
                 end
             end
 
-            self.Lines = {};
-        end
+            if #self.Lines > 0 then
+                for _, Line in next, self.Lines do
+                    if Line.Line then
+                        Line.Line:Destroy();
+                        Line.Line.Visible = false;
+                    end
+                end
 
-        return true, "Moved through path";
+                self.Lines = {};
+            end
+
+            self.Running = false;
+
+            return true, "Moved through path";
+        end)
+    end
+
+    function Pathfinding:Cancel()
+        self.Stop = true;
     end
 end
 
