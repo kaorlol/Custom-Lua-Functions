@@ -10,10 +10,20 @@ local function WorldToPoint(Position)
     return Vector2.new(Vector.X, Vector.Y), OnScreen;
 end
 
+local function CheckLength(Table)
+    local Length = 0;
+
+    for _, _ in next, Table do
+        Length = Length + 1;
+    end
+
+    return Length;
+end;
+
 local Pathfinding = {}; do
     Pathfinding.__index = Pathfinding;
 
-    function Pathfinding.new(Start, Goal)
+    function Pathfinding.new(Start: Vector3, Goal: Vector3)
         local self = setmetatable({}, Pathfinding);
 
         self.PathfindingService = PathfindingService;
@@ -30,7 +40,7 @@ local Pathfinding = {}; do
         self.Stop = false;
 
         return self;
-    end
+    end;
 
     function Pathfinding:FindPath()
         local Path = self.PathfindingService:FindPathAsync(self.Start, self.Goal);
@@ -39,8 +49,8 @@ local Pathfinding = {}; do
             return Path;
         end
 
-        return false, "Failed to find path";
-    end
+        return "Failed to find path";
+    end;
 
     function Pathfinding:VisualizePath(Path)
         local Waypoints = Path:GetWaypoints();
@@ -98,7 +108,7 @@ local Pathfinding = {}; do
                 end
             end
         end)
-    end
+    end;
 
     function Pathfinding:MoveThroughPath(Path)
         local Waypoints = Path:GetWaypoints();
@@ -139,31 +149,35 @@ local Pathfinding = {}; do
 
             return true, "Moved through path";
         end)
-    end
+    end;
 
-    function Pathfinding:Cancel()
-        self.Stop = true;
-    end
-
-    function Pathfinding:ChangeGoal(Goal)
+    function Pathfinding:ChangeGoal(Start, Goal)
         self.Stop = true;
 
-        local NewPathfinding = Pathfinding.new(self.Start, Goal);
+        local NewPathfinding = Pathfinding.new(Start, Goal);
         local Path = NewPathfinding:FindPath();
 
         if Path then
             NewPathfinding:VisualizePath(Path);
             NewPathfinding:MoveThroughPath(Path);
         end
-    end
+    end;
+
+    function Pathfinding:Cancel()
+        self.Stop = true;
+    end;
 
     function Pathfinding:IsRunning()
         return self.Running;
-    end
+    end;
 
     function Pathfinding:IsStopped()
         return self.Stop;
-    end
+    end;
+
+    function Pathfinding:GetGoal()
+        return self.Goal;
+    end;
 end
 
 return Pathfinding;
