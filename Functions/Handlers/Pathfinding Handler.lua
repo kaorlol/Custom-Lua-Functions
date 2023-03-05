@@ -115,40 +115,38 @@ local Pathfinding = {}; do
 
         self.Running = true;
 
-        task.spawn(function()
-            for Waypoint = 1, #Waypoints do
-                if self.Stop then
-                    self.Running = false;
-                    self.Stop = false;
+        for Waypoint = 1, #Waypoints do
+            if self.Stop then
+                self.Running = false;
+                self.Stop = false;
 
-                    return false, "Stopped moving through path";
+                return false, "Stopped moving through path";
+            else
+                if Waypoints[Waypoint].Action == Enum.PathWaypointAction.Jump then
+                    self.Humanoid.Jump = true;
+                    self.Humanoid:MoveTo(Waypoints[Waypoint + 1].Position);
+                    self.Humanoid.MoveToFinished:Wait();
                 else
-                    if Waypoints[Waypoint].Action == Enum.PathWaypointAction.Jump then
-                        self.Humanoid.Jump = true;
-                        self.Humanoid:MoveTo(Waypoints[Waypoint + 1].Position);
-                        self.Humanoid.MoveToFinished:Wait();
-                    else
-                        self.Humanoid:MoveTo(Waypoints[Waypoint].Position);
-                        self.Humanoid.MoveToFinished:Wait();
-                    end
+                    self.Humanoid:MoveTo(Waypoints[Waypoint].Position);
+                    self.Humanoid.MoveToFinished:Wait();
+                end
+            end
+        end
+
+        if #self.Lines > 0 then
+            for _, Line in next, self.Lines do
+                if Line.Line then
+                    Line.Line:Destroy();
+                    Line.Line.Visible = false;
                 end
             end
 
-            if #self.Lines > 0 then
-                for _, Line in next, self.Lines do
-                    if Line.Line then
-                        Line.Line:Destroy();
-                        Line.Line.Visible = false;
-                    end
-                end
+            self.Lines = {};
+        end
 
-                self.Lines = {};
-            end
+        self.Running = false;
 
-            self.Running = false;
-
-            return true, "Moved through path";
-        end)
+        return true, "Moved through path";
     end;
 
     function Pathfinding:ChangeGoal(Start, Goal)
