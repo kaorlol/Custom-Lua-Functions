@@ -142,7 +142,7 @@ local function MoveToFinished(self, Reached)
 		DisconnectMoveConnection(self);
 		self.Status = Path.StatusType.Idle;
 		self.VisualWaypoints = DestroyVisualWaypoints(self.VisualWaypoints);
-		self.Events.Reached:Fire(self.Agent, self.Eaypoints[self.CurrentWaypoint]);
+		self.Events.Reached:Fire(self.Agent, self.Waypoints[self.CurrentWaypoint]);
 	else
 		DisconnectMoveConnection(self);
 		self.Status = Path.StatusType.Idle;
