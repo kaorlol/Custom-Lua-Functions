@@ -271,4 +271,4 @@ local PathfindingHandler = {}; do
     end;
 end
 
-return Pathfinding
+return PathfindingHandler;
