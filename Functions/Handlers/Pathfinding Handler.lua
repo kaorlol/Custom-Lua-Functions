@@ -285,7 +285,7 @@ function Path:Run(Target)
 		or #self.Path:GetWaypoints() < 2
 		or (self.Humanoid and self.Humanoid:GetState() == Enum.HumanoidStateType.Freefall) then
 
-		self.VisualWaypoints = destroyVisualWaypoints(self.VisualWaypoints);
+		self.VisualWaypoints = DestroyVisualWaypoints(self.VisualWaypoints);
 		task.wait();
 		DeclareError(self, self.ErrorType.ComputationError);
 
