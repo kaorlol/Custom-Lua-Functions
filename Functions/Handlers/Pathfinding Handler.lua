@@ -107,21 +107,20 @@ local Pathfinding = {}; do
 
         task.spawn(function()
             for Waypoint = 1, #Waypoints do
-
                 if self.Stop then
                     self.Running = false;
                     self.Stop = false;
 
                     return false, "Stopped moving through path";
-                end
-
-                if Waypoints[Waypoint].Action == Enum.PathWaypointAction.Jump then
-                    self.Humanoid.Jump = true;
-                    self.Humanoid:MoveTo(Waypoints[Waypoint + 1].Position);
-                    self.Humanoid.MoveToFinished:Wait();
                 else
-                    self.Humanoid:MoveTo(Waypoints[Waypoint].Position);
-                    self.Humanoid.MoveToFinished:Wait();
+                    if Waypoints[Waypoint].Action == Enum.PathWaypointAction.Jump then
+                        self.Humanoid.Jump = true;
+                        self.Humanoid:MoveTo(Waypoints[Waypoint + 1].Position);
+                        self.Humanoid.MoveToFinished:Wait();
+                    else
+                        self.Humanoid:MoveTo(Waypoints[Waypoint].Position);
+                        self.Humanoid.MoveToFinished:Wait();
+                    end
                 end
             end
 
@@ -144,6 +143,26 @@ local Pathfinding = {}; do
 
     function Pathfinding:Cancel()
         self.Stop = true;
+    end
+
+    function Pathfinding:ChangeGoal(Goal)
+        self.Stop = true;
+
+        local NewPathfinding = Pathfinding.new(self.Start, Goal);
+        local Path = NewPathfinding:FindPath();
+
+        if Path then
+            NewPathfinding:VisualizePath(Path);
+            NewPathfinding:MoveThroughPath(Path);
+        end
+    end
+
+    function Pathfinding:IsRunning()
+        return self.Running;
+    end
+
+    function Pathfinding:IsStopped()
+        return self.Stop;
     end
 end
 
