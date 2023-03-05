@@ -10,15 +10,9 @@ local function WorldToPoint(Position)
     return Vector2.new(Vector.X, Vector.Y), OnScreen;
 end
 
-local function CheckLength(Table)
-    local Length = 0;
-
-    for _, _ in next, Table do
-        Length = Length + 1;
-    end
-
-    return Length;
-end;
+local function IsMoving()
+    return (Humanoid.MoveDirection ~= Vector3.new(0, 0, 0)) or (Humanoid.Jump == true);
+end
 
 local Pathfinding = {}; do
     Pathfinding.__index = Pathfinding;
@@ -88,7 +82,7 @@ local Pathfinding = {}; do
 
         task.spawn(function()
             while #self.Lines > 0 do task.wait()
-                if self.Stop or (self.LastGoal ~= self.Goal) then
+                if self.Stop then
                     for _, Line in next, self.Lines do
                         Line.Line:Remove();
                     end
@@ -111,7 +105,7 @@ local Pathfinding = {}; do
                     Line.Line.To = WorldToPoint(Line.To);
                     Line.Line.Color = Color3.fromRGB(255, 255, 255);
                 end
-        end
+            end
         end)
     end;
 
@@ -132,11 +126,11 @@ local Pathfinding = {}; do
                     return false, "Stopped moving through path";
                 end
 
-                if LastWaypoint then
-                    local X, Z = LastWaypoint.Position.X, LastWaypoint.Position.Z;
+                -- if LastWaypoint then
+                --     local X, Z = LastWaypoint.Position.X, LastWaypoint.Position.Z;
 
-                    self.HumanoidRootPart.CFrame = CFrame.new(self.HumanoidRootPart.Position, Vector3.new(X, self.HumanoidRootPart.Position.Y, Z));
-                end
+                --     self.HumanoidRootPart.CFrame = CFrame.new(self.HumanoidRootPart.Position, Vector3.new(X, self.HumanoidRootPart.Position.Y, Z));
+                -- end
             end
         end)
 
@@ -271,4 +265,4 @@ local PathfindingHandler = {}; do
     end;
 end
 
-return PathfindingHandler;
+return Pathfinding;
