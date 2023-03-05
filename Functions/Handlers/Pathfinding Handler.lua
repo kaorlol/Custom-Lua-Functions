@@ -10,10 +10,6 @@ local function WorldToPoint(Position)
     return Vector2.new(Vector.X, Vector.Y), OnScreen;
 end
 
-local function IsMoving()
-    return (Humanoid.MoveDirection ~= Vector3.new(0, 0, 0)) or (Humanoid.Jump == true);
-end
-
 local Pathfinding = {}; do
     Pathfinding.__index = Pathfinding;
 
@@ -24,7 +20,6 @@ local Pathfinding = {}; do
         self.LocalPlayer = LocalPlayer;
         self.Character = Character;
         self.Humanoid = Humanoid;
-        self.HumanoidRootPart = self.Character:WaitForChild("HumanoidRootPart");
 
         self.Start = Start;
         self.Goal = Goal;
@@ -33,9 +28,6 @@ local Pathfinding = {}; do
 
         self.Running = false;
         self.Stop = false;
-
-        self.StartedNewPath = false;
-        self.LastGoal = nil;
 
         return self;
     end;
@@ -52,7 +44,6 @@ local Pathfinding = {}; do
 
     function Pathfinding:VisualizePath(Path)
         local Waypoints = Path:GetWaypoints();
-
 
         for Waypoint = 1, #Waypoints do
             local Line = Drawing.new("Line");
@@ -111,65 +102,41 @@ local Pathfinding = {}; do
 
     function Pathfinding:MoveThroughPath(Path)
         local Waypoints = Path:GetWaypoints();
-        local LastWaypoint = Waypoints[#Waypoints];
 
         self.Running = true;
 
-        task.spawn(function()
-            while self.Running do task.wait()
-                if self.Stop then
-                    self.Running = false;
-                    self.Stop = false;
+        for Waypoint = 1, #Waypoints do
+            if self.Stop then
+                self.Running = false;
+                self.Stop = false;
 
-                    self.LastGoal = self.Goal;
-
-                    return false, "Stopped moving through path";
-                end
-
-                -- if LastWaypoint then
-                --     local X, Z = LastWaypoint.Position.X, LastWaypoint.Position.Z;
-
-                --     self.HumanoidRootPart.CFrame = CFrame.new(self.HumanoidRootPart.Position, Vector3.new(X, self.HumanoidRootPart.Position.Y, Z));
-                -- end
-            end
-        end)
-
-        task.spawn(function()
-            for Waypoint = 1, #Waypoints do
-                if self.Stop then
-                    self.Running = false;
-                    self.Stop = false;
-
-                    self.LastGoal = self.Goal;
-
-                    return false, "Stopped moving through path";
+                return false, "Stopped moving through path";
+            else
+                if Waypoints[Waypoint].Action == Enum.PathWaypointAction.Jump then
+                    self.Humanoid.Jump = true;
+                    self.Humanoid:MoveTo(Waypoints[Waypoint + 1].Position);
+                    self.Humanoid.MoveToFinished:Wait();
                 else
-                    if Waypoints[Waypoint].Action == Enum.PathWaypointAction.Jump then
-                        self.Humanoid.Jump = true;
-                        self.Humanoid:MoveTo(Waypoints[Waypoint + 1].Position);
-                        self.Humanoid.MoveToFinished:Wait();
-                    else
-                        self.Humanoid:MoveTo(Waypoints[Waypoint].Position);
-                        self.Humanoid.MoveToFinished:Wait();
-                    end
+                    self.Humanoid:MoveTo(Waypoints[Waypoint].Position);
+                    self.Humanoid.MoveToFinished:Wait();
+                end
+            end
+        end
+
+        if #self.Lines > 0 then
+            for _, Line in next, self.Lines do
+                if Line.Line then
+                    Line.Line:Destroy();
+                    Line.Line.Visible = false;
                 end
             end
 
-            if #self.Lines > 0 then
-                for _, Line in next, self.Lines do
-                    if Line.Line then
-                        Line.Line:Destroy();
-                        Line.Line.Visible = false;
-                    end
-                end
+            self.Lines = {};
+        end
 
-                self.Lines = {};
-            end
+        self.Running = false;
 
-            self.Running = false;
-
-            return true, "Moved through path";
-        end)
+        return true, "Moved through path";
     end;
 
     function Pathfinding:ChangeGoal(Start, Goal)
@@ -179,15 +146,13 @@ local Pathfinding = {}; do
         local Path = NewPathfinding:FindPath();
 
         if Path then
-            --NewPathfinding:VisualizePath(Path);
+            NewPathfinding:VisualizePath(Path);
             NewPathfinding:MoveThroughPath(Path);
         end
     end;
 
     function Pathfinding:Cancel()
         self.Stop = true;
-
-        self.LastGoal = self.Goal;
     end;
 
     function Pathfinding:IsRunning()
@@ -200,68 +165,6 @@ local Pathfinding = {}; do
 
     function Pathfinding:GetGoal()
         return self.Goal;
-    end;
-end
-
-local PathfindingHandler = {}; do
-    PathfindingHandler.__index = PathfindingHandler;
-
-    function PathfindingHandler.new()
-        local self = setmetatable({}, PathfindingHandler);
-
-        self.Pathfinding = nil;
-
-        return self;
-    end;
-
-    function PathfindingHandler:Start(Start, Goal)
-        if self.Pathfinding then
-            self.Pathfinding:Cancel();
-        end
-
-        self.Pathfinding = Pathfinding.new(Start, Goal);
-        local Path = self.Pathfinding:FindPath();
-
-        if Path then
-            --self.Pathfinding:VisualizePath(Path);
-            self.Pathfinding:MoveThroughPath(Path);
-        end
-    end;
-
-    function PathfindingHandler:ChangeGoal(Start, Goal)
-        if self.Pathfinding then
-            self.Pathfinding:ChangeGoal(Start, Goal);
-        end
-    end;
-
-    function PathfindingHandler:Cancel()
-        if self.Pathfinding then
-            self.Pathfinding:Cancel();
-        end
-    end;
-
-    function PathfindingHandler:IsRunning()
-        if self.Pathfinding then
-            return self.Pathfinding:IsRunning();
-        end
-
-        return false;
-    end;
-
-    function PathfindingHandler:IsStopped()
-        if self.Pathfinding then
-            return self.Pathfinding:IsStopped();
-        end
-
-        return false;
-    end;
-
-    function PathfindingHandler:GetGoal()
-        if self.Pathfinding then
-            return self.Pathfinding:GetGoal();
-        end
-
-        return nil;
     end;
 end
 
