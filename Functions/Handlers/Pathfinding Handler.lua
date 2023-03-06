@@ -11,6 +11,13 @@ local function Output(Function, Message)
 	Function(((Function == error and "SimplePath Error: ") or "SimplePath: ") .. Message);
 end
 
+local function WorldToView(Position)
+	local Camera = workspace.CurrentCamera;
+	local Vector, OnScreen = Camera:WorldToViewportPoint(Position);
+
+	return Vector2.new(Vector.X, Vector.Y), Vector.Z;
+end
+
 local Path = {
 	StatusType = {
 		Idle = "Idle";
@@ -75,8 +82,8 @@ local function CreateVisualWaypoints(Waypoints)
 			(Waypoint == Waypoints[#Waypoints] and Color3.fromRGB(0, 255, 0))
 			or (Waypoint.Action == Enum.PathWaypointAction.Jump and Color3.fromRGB(255, 0, 0))
 			or Color3.fromRGB(255, 139, 0);
-		Line.From = LastPosition or Waypoint.Position;
-		Line.To = Waypoint.Position;
+		Line.From = WorldToView(LastPosition or Waypoint.Position);
+		Line.To = WorldToView(Waypoint.Position);
 
 		LastPosition = Waypoint.Position;
 
