@@ -41,62 +41,62 @@ Path.__index = function(Table, Index)
 		or Path[Index];
 end
 
--- local VisualWaypoint = Instance.new("Part");
--- VisualWaypoint.Size = Vector3.new(0.3, 0.3, 0.3);
--- VisualWaypoint.Anchored = true;
--- VisualWaypoint.CanCollide = false;
--- VisualWaypoint.Material = Enum.Material.Neon;
--- VisualWaypoint.Shape = Enum.PartType.Ball;
+local VisualWaypoint = Instance.new("Part");
+VisualWaypoint.Size = Vector3.new(0.3, 0.3, 0.3);
+VisualWaypoint.Anchored = true;
+VisualWaypoint.CanCollide = false;
+VisualWaypoint.Material = Enum.Material.Neon;
+VisualWaypoint.Shape = Enum.PartType.Ball;
 
 local function DeclareError(self, ErrorType)
 	self.LastError = ErrorType;
 	self.Events.Error:Fire(ErrorType);
 end
 
--- local function CreateVisualWaypoints(Waypoints)
--- 	local VisualWaypoints = {};
-
--- 	for _, Waypoint in ipairs(Waypoints) do
--- 		local VisualWaypointClone = VisualWaypoint:Clone();
--- 		VisualWaypointClone.Position = Waypoint.Position;
--- 		VisualWaypointClone.Parent = workspace;
--- 		VisualWaypointClone.Color =
--- 			(Waypoint == Waypoints[#Waypoints] and Color3.fromRGB(0, 255, 0))
--- 			or (Waypoint.Action == Enum.PathWaypointAction.Jump and Color3.fromRGB(255, 0, 0))
--- 			or Color3.fromRGB(255, 139, 0);
--- 		table.insert(VisualWaypoints, VisualWaypointClone);
--- 	end
-
--- 	return VisualWaypoints;
--- end
-
 local function CreateVisualWaypoints(Waypoints)
 	local VisualWaypoints = {};
-	local LastPosition = nil;
 
 	for _, Waypoint in ipairs(Waypoints) do
-		local Line = Drawing.new("Line");
-		Line.Visible = true;
-		Line.Thickness = 0.1;
-		Line.Color =
+		local VisualWaypointClone = VisualWaypoint:Clone();
+		VisualWaypointClone.Position = Waypoint.Position;
+		VisualWaypointClone.Parent = workspace;
+		VisualWaypointClone.Color =
 			(Waypoint == Waypoints[#Waypoints] and Color3.fromRGB(0, 255, 0))
 			or (Waypoint.Action == Enum.PathWaypointAction.Jump and Color3.fromRGB(255, 0, 0))
 			or Color3.fromRGB(255, 139, 0);
-		Line.From = WorldToView(LastPosition or Waypoint.Position);
-		Line.To = WorldToView(Waypoint.Position);
-
-		LastPosition = Waypoint.Position;
-
-		table.insert(VisualWaypoints, Line);
+		table.insert(VisualWaypoints, VisualWaypointClone);
 	end
 
 	return VisualWaypoints;
 end
 
+-- local function CreateVisualWaypoints(Waypoints)
+-- 	local VisualWaypoints = {};
+-- 	local LastPosition = nil;
+
+-- 	for _, Waypoint in ipairs(Waypoints) do
+-- 		local Line = Drawing.new("Line");
+-- 		Line.Visible = true;
+-- 		Line.Thickness = 0.1;
+-- 		Line.Color =
+-- 			(Waypoint == Waypoints[#Waypoints] and Color3.fromRGB(0, 255, 0))
+-- 			or (Waypoint.Action == Enum.PathWaypointAction.Jump and Color3.fromRGB(255, 0, 0))
+-- 			or Color3.fromRGB(255, 139, 0);
+-- 		Line.From = WorldToView(LastPosition or Waypoint.Position);
+-- 		Line.To = WorldToView(Waypoint.Position);
+
+-- 		LastPosition = Waypoint.Position;
+
+-- 		table.insert(VisualWaypoints, Line);
+-- 	end
+
+-- 	return VisualWaypoints;
+-- end
+
 local function DestroyVisualWaypoints(Waypoints)
 	if Waypoints then
 		for _, Waypoint in ipairs(Waypoints) do
-			Waypoint:Remove();
+			Waypoint:Destroy();
 		end
 	end
 
