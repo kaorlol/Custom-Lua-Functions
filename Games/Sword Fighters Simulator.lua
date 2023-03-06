@@ -1,3 +1,10 @@
+writefile("Sword Fighters Simulator.lua", game:HttpGet("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Games/Sword%20Fighters%20Simulator.lua"));
+
+if isfile("Sword Fighters Simulator.lua") then
+    loadfile("Sword Fighters Simulator.lua")();
+    return;
+end
+
 local PreLoadTick = tick();
 
 if typeof(syn) == "table" and RenderWindow then
