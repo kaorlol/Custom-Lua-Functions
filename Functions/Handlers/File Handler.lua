@@ -6,15 +6,15 @@ local function FormatFileName(Folder, Version, FileName)
     return Folder .. "/" .. Version .. " " .. FileName .. ".lua";
 end
 
-local FileHandler = { Version = "1.0.0" }; do
-    local Version = FileHandler.Version;
+local FileHandler = {}; do
+    self.Version = "1.0.0";
 
     function FileHandler:ChangeVersion(NewVersion)
         if not NewVersion then
             return;
         end
 
-        Version = NewVersion;
+        self.Version = NewVersion;
     end;
 
     function FileHandler:MakeFolder(Name)
@@ -37,9 +37,8 @@ local FileHandler = { Version = "1.0.0" }; do
             return;
         end
 
-        if not isfile(FormatFileName(Folder, Version, Name)) then
-            writefile(FormatFileName(Folder, Version, Name), Content);
-        end
+
+        writefile(FormatFileName(Folder, self.Version, Name), Content);
     end;
 
     function FileHandler:ReadFile(Folder, Name)
@@ -52,12 +51,12 @@ local FileHandler = { Version = "1.0.0" }; do
             return;
         end
 
-        if not isfile(FormatFileName(Folder, Version, Name)) then
+        if not isfile(FormatFileName(Folder, self.Version, Name)) then
             warn("File does not exist");
             return;
         end
 
-        return readfile(FormatFileName(Folder, Version, Name));
+        return readfile(FormatFileName(Folder, self.Version, Name));
     end;
 
     function FileHandler:LoadFile(Folder, Name)
@@ -70,12 +69,12 @@ local FileHandler = { Version = "1.0.0" }; do
             return;
         end
 
-        if not isfile(FormatFileName(Folder, Version, Name)) then
+        if not isfile(FormatFileName(Folder, self.Version, Name)) then
             warn("File does not exist");
             return;
         end
 
-        local Success, Failed = pcall(loadstring(readfile(FormatFileName(Folder, Version, Name))));
+        local Success, Failed = pcall(loadstring(readfile(FormatFileName(Folder, self.Version, Name))));
 
         if Success then
             return Success;
