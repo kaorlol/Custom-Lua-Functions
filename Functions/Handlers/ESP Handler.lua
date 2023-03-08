@@ -225,10 +225,10 @@ local function InitESP(Tab)
 
     ESPSettingsTab:AddSlider("Box Fill Transparency", {
         Text = "Box Fill Transparency",
-        Default = 0.5,
+        Default = 1,
         Min = 0,
         Max = 1,
-        Rounding = 0.1,
+        Rounding = 1,
         Compact = false,
         Callback = function(TransparencyValue)
             Settings.BoxFillTransparency = TransparencyValue;
@@ -252,7 +252,7 @@ local function InitESP(Tab)
         Default = 20,
         Min = 20,
         Max = 50,
-        Rounding = 1,
+        Rounding = 0,
         Compact = false,
         Callback = function(ArrowSizeValue)
             Settings.OofArrowsSize = ArrowSizeValue;
@@ -264,7 +264,7 @@ local function InitESP(Tab)
         Default = 50,
         Min = 50,
         Max = 500,
-        Rounding = 1,
+        Rounding = 0,
         Compact = false,
         Callback = function(ArrowRadiusValue)
             Settings.OofArrowsRadius = ArrowRadiusValue;
