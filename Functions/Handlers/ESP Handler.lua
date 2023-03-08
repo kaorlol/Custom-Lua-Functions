@@ -44,12 +44,9 @@ local function InitESP(Tab)
 
     local NonRainbowColors = {
         NameColor = Settings.NameColor,
-        TeamColor = Settings.TeamColor,
         BoxColor = Settings.BoxColor,
         BoxFillColor = Settings.BoxFillColor,
-        SkeletonColor = Settings.SkeletonColor,
         OofArrowsColor = Settings.OofArrowsColor,
-        HealthtextColor = Settings.HealthtextColor,
         DistanceColor = Settings.DistanceColor,
     };
 
@@ -76,28 +73,10 @@ local function InitESP(Tab)
         Tooltip = "Enable the Names",
     })
 
-    ESPTab:AddToggle("Enable Teams", {
-        Text = "Enable Teams",
-        Default = false,
-        Tooltip = "Enable the Teams",
-    })
-
     ESPTab:AddToggle("Enable Healthbars", {
         Text = "Enable Healthbars",
         Default = false,
         Tooltip = "Enable the Healthbars",
-    })
-
-    ESPTab:AddToggle("Enable Healthtext", {
-        Text = "Enable Healthtext",
-        Default = false,
-        Tooltip = "Enable the Healthtext",
-    })
-
-    ESPTab:AddToggle("Enable Distance", {
-        Text = "Enable Distance",
-        Default = false,
-        Tooltip = "Enable the Distance",
     })
 
     ESPTab:AddToggle("Enable Arrow", {
@@ -110,20 +89,8 @@ local function InitESP(Tab)
         Settings.Healthbar = Toggles["Enable Healthbars"].Value;
     end);
 
-    Toggles["Enable Healthtext"]:OnChanged(function()
-        Settings.Healthtext = Toggles["Enable Healthtext"].Value;
-    end);
-
-    Toggles["Enable Distance"]:OnChanged(function()
-        Settings.Distance = Toggles["Enable Distance"].Value;
-    end);
-
     Toggles["Enable Arrow"]:OnChanged(function()
         Settings.OofArrows = Toggles["Enable Arrow"].Value;
-    end);
-
-    Toggles["Enable Teams"]:OnChanged(function()
-        Settings.Teams = Toggles["Enable Teams"].Value;
     end);
 
     Toggles["Enable Names"]:OnChanged(function()
@@ -150,36 +117,6 @@ local function InitESP(Tab)
             Settings.NameColor = ColorValue;
 
             NonRainbowColors.NameColor = ColorValue;
-        end
-    })
-
-    ESPColorsTab:AddLabel("Team Color"):AddColorPicker("Team Color", {
-        Default = Color3.new(1, 1, 1),
-        Title = "Team Color",
-        Callback = function(ColorValue)
-            Settings.TeamColor = ColorValue;
-
-            NonRainbowColors.TeamColor = ColorValue;
-        end
-    })
-
-    ESPColorsTab:AddLabel("Healthtext Color"):AddColorPicker("Healthtext Color", {
-        Default = Color3.new(1, 1, 1),
-        Title = "Healthtext Color",
-        Callback = function(ColorValue)
-            Settings.HealthtextColor = ColorValue;
-
-            NonRainbowColors.HealthtextColor = ColorValue;
-        end
-    })
-
-    ESPColorsTab:AddLabel("Distance Color"):AddColorPicker("Distance Color", {
-        Default = Color3.new(1, 1, 1),
-        Title = "Distance Color",
-        Callback = function(ColorValue)
-            Settings.DistanceColor = ColorValue;
-
-            NonRainbowColors.DistanceColor = ColorValue;
         end
     })
 
@@ -292,25 +229,17 @@ local function InitESP(Tab)
 
                 if Color then
                     Settings.NameColor = Color;
-                    Settings.TeamColor = Color;
                     Settings.BoxColor = Color;
                     Settings.BoxFillColor = Color;
-                    Settings.SkeletonColor = Color;
                     Settings.OofArrowsColor = Color;
-                    Settings.HealthtextColor = Color;
-                    Settings.DistanceColor = Color;
                 end
             end
 
             if not Toggles["Rainbow ESP"].Value then
                 Settings.NameColor = NonRainbowColors.NameColor;
-                Settings.TeamColor = NonRainbowColors.TeamColor;
                 Settings.BoxColor = NonRainbowColors.BoxColor;
                 Settings.BoxFillColor = NonRainbowColors.BoxFillColor;
-                Settings.SkeletonColor = NonRainbowColors.SkeletonColor;
                 Settings.OofArrowsColor = NonRainbowColors.OofArrowsColor;
-                Settings.HealthtextColor = NonRainbowColors.HealthtextColor;
-                Settings.DistanceColor = NonRainbowColors.DistanceColor;
             end
         end)
     end);
