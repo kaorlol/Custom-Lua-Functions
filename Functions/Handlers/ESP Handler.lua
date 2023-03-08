@@ -52,7 +52,6 @@ local function InitESP(Tab)
 
     local ESPTab = Tab:AddLeftGroupbox("Enabled");
     local ESPSettingsTab = Tab:AddRightGroupbox("Settings");
-    local ESPColorsTab = Tab:AddLeftGroupbox("Colors");
 
     -- << ESP >> --
     ESPTab:AddToggle("Enable ESP", {
@@ -109,8 +108,8 @@ local function InitESP(Tab)
         end
     end);
 
-    -- << ESP Colors >> --
-    ESPColorsTab:AddLabel("Name Color"):AddColorPicker("Name Color", {
+    -- << ESP Settings >> --
+    ESPSettingsTab:AddLabel("Name Color"):AddColorPicker("Name Color", {
         Default = Color3.new(1, 1, 1),
         Title = "Name Color",
         Callback = function(ColorValue)
@@ -120,7 +119,8 @@ local function InitESP(Tab)
         end
     })
 
-    -- << ESP Settings >> --
+    ESPSettingsTab:AddDivider();
+
     ESPSettingsTab:AddDropdown("Box Type", {
         Values = {"Static", "Dynamic"},
         Default = 1,
