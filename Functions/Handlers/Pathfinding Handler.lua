@@ -1,3 +1,5 @@
+
+
 local Settings = {
 	TimeVariance = 0.07;
 	ComparisonChecks = 1;
@@ -286,12 +288,14 @@ function Path:Stop()
 	self.Events.Stopped:Fire(self.Model);
 end
 
-function Path:Run(Target)
+function Path:Run(Target, Offset)
 	if not Target and not self.Humanoid and self.Target then
 		MoveToFinished(self, true);
 
 		return;
 	end
+
+	if Offset == nil or typeof(Offset) ~= "Vector3" then Offset = Vector3.new(0,0,0) end
 
 	if not (Target and (typeof(Target) == "Vector3" or Target:IsA("BasePart"))) then
 		Output(error, "Pathfinding target must be a valid Vector3 or BasePart.");
@@ -307,7 +311,7 @@ function Path:Run(Target)
 	end
 
 	local PathComputed, _ = pcall(function()
-		self.Path:ComputeAsync(self.Agent.PrimaryPart.Position, (typeof(Target) == "Vector3" and Target) or Target.Position);
+		self.Path:ComputeAsync(self.Agent.PrimaryPart.Position - Offset, (typeof(Target) == "Vector3" and Target) or Target.Position);
 	end)
 
 	if not PathComputed
