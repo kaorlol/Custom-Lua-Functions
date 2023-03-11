@@ -227,7 +227,7 @@ function Path.new(Agent, AgentParameters, Override)
 		Humanoid = Agent:FindFirstChildOfClass("Humanoid");
 		Path = PathfindingService:CreatePath(AgentParameters);
 		Status = "Idle";
-		T = 0;
+		Time = 0;
 		Position = {
 			Last = Vector3.new();
 			Count = 0;
@@ -288,30 +288,34 @@ function Path:Stop()
 	self.Events.Stopped:Fire(self.Model);
 end
 
-function Path:Run(Target, Offset)
+function Path:Run(Target)
 	if not Target and not self.Humanoid and self.Target then
 		MoveToFinished(self, true);
 
 		return;
 	end
 
-	if Offset == nil or typeof(Offset) ~= "Vector3" then Offset = Vector3.new(0,0,0) end
-
 	if not (Target and (typeof(Target) == "Vector3" or Target:IsA("BasePart"))) then
 		Output(error, "Pathfinding target must be a valid Vector3 or BasePart.");
 	end
 
-	if os.clock() - self.T <= self.Settings.TimeVariance and self.Humanoid then
-		task.wait(os.clock() - self.T);
+	if os.clock() - self.Time <= self.Settings.TimeVariance and self.Humanoid then
+		task.wait(os.clock() - self.Time);
 		DeclareError(self, self.ErrorType.LimitReached);
 
 		return false;
 	elseif self.Humanoid then
-		self.T = os.clock();
+		self.Time = os.clock();
+	end
+
+	local HumanoidRootPart = self.Agent:FindFirstChild("HumanoidRootPart");
+
+	if not HumanoidRootPart then
+		HumanoidRootPart = self.Agent.PrimaryPart;
 	end
 
 	local PathComputed, _ = pcall(function()
-		self.Path:ComputeAsync(self.Agent.PrimaryPart.Position - Offset, (typeof(Target) == "Vector3" and Target) or Target.Position);
+		self.Path:ComputeAsync(HumanoidRootPart.Position, (typeof(Target) == "Vector3" and Target) or Target.Position);
 	end)
 
 	if not PathComputed
