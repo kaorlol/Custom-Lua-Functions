@@ -9,28 +9,32 @@ local TypeOptionFuncs = {
 			return (debug.info(Function, "n") or "") == Value;
 		end,
 		Upvalues = function(Function, Value)
-			if not islclosure(Function) then continue; end
+			local Success, Error = pcall(function()
+				local Upvalues = debug.getupvalues(Function);
+				local Passed = 0;
 
-			local Upvalues = debug.getupvalues(Function);
-			local Passed = 0;
+				for Index = 1, #Value do
+					Passed += (table.find(Upvalues, Value[Index]) and 1) or 0;
+				end
 
-			for Index = 1, #Value do
-				Passed += (table.find(Upvalues, Value[Index]) and 1) or 0;
-			end
-
-			return #Value == Passed;
+				return #Value == Passed;
+			end)
+			
+			return Success;
 		end,
 		Constants = function(Function, Value)
-			if not islclosure(Function) then continue; end
+			local Success, Error = pcall(function()
+				local Constants = debug.getconstants(Function);
+				local Passed = 0;
 
-			local Constants = debug.getconstants(Function);
-			local Passed = 0;
+				for Index = 1, #Value do
+					Passed += (table.find(Constants, Value[Index]) and 1) or 0;
+				end
 
-			for Index = 1, #Value do
-				Passed += (table.find(Constants, Value[Index]) and 1) or 0;
-			end
-
-			return #Value == Passed;
+				return #Value == Passed;
+			end)
+			
+			return Success;
 		end
 	};
 
