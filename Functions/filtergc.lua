@@ -1,4 +1,7 @@
-local getgc = getgc or "???";
+local getupvalues = getupvalues or debug.getupvalues
+local getconstants = getconstants or debug.getconstants
+
+assert(getgc and getupvalues and getconstants, "Lacking one of these functions: getgc/getupvalues/getconstants")
 
 local TypeOptionFuncs = {
 	["function"] = {
@@ -6,6 +9,8 @@ local TypeOptionFuncs = {
 			return (debug.info(Function, "n") or "") == Value;
 		end,
 		Upvalues = function(Function, Value)
+			if not islclosure(Function) then continue; end
+
 			local Upvalues = debug.getupvalues(Function);
 			local Passed = 0;
 
@@ -16,6 +21,8 @@ local TypeOptionFuncs = {
 			return #Value == Passed;
 		end,
 		Constants = function(Function, Value)
+			if not islclosure(Function) then continue; end
+
 			local Constants = debug.getconstants(Function);
 			local Passed = 0;
 
