@@ -1,9 +1,11 @@
 local HandlersFolder = "https://github.com/Uvxtq/Custom-Lua-Functions/tree/main/Functions/Handlers";
 
 local function ReplaceSpace(String)
-    if String:find(" ") then
+    if String:find(" ") and not String:find("%%20") then
         return String:gsub(" ", "%%20");
     end
+
+    return String;
 end
 
 local function MakeRaw(Url)
@@ -39,28 +41,31 @@ end
 
 
 local function LoadHandler(Name)
-    Name = ReplaceSpace(Name);
     local Functions = FormatFunctions();
 
     if typeof(Name) == "table" then
         local Handlers = {};
 
         for _, HandlerName in next, Name do
-            if Functions[HandlerName] then
-                Handlers[HandlerName] = loadstring(Functions[HandlerName])();
+            Name = ReplaceSpace(HandlerName);
+
+            if Functions[Name] then
+                Handlers[Name] = loadstring(Functions[Name])();
             else
-                warn("Handler not found");
+                warn(string.format("Handler %s not found", Name));
             end
         end
 
         return Handlers;
     end
 
+    Name = ReplaceSpace(Name);
+
     if Functions[Name] then
         return loadstring(Functions[Name])();
     end
 
-    warn("Handler not found");
+    warn(string.format("Handler %s not found", Name));
     return nil;
 end
 
