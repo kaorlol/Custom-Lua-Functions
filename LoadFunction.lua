@@ -4,6 +4,8 @@ local function ReplaceSpace(String)
     if String:find(" ") and not String:find("%%20") then
         return String:gsub(" ", "%%20");
     end
+
+    return String;
 end
 
 local function MakeRaw(Url)
