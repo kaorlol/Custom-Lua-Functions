@@ -4,11 +4,11 @@ if not game:IsLoaded() then
 end
 
 -- << Services >> --
-local TeleportService = game:GetService("TeleportService");
-local CoreGui = game:GetService("CoreGui");
-local Players = game:GetService("Players");
-local HttpService = game:GetService("HttpService");
-local StarterGui = game:GetService("StarterGui");
+local TeleportService = cloneref(game:GetService("TeleportService"));
+local CoreGui = cloneref(game:GetService("CoreGui"));
+local Players = cloneref(game:GetService("Players"));
+local HttpService = cloneref(game:GetService("HttpService"));
+local StarterGui = cloneref(game:GetService("StarterGui"));
 
 -- << Modules >> --
 local Utility = getrenv().require(CoreGui.RobloxGui.Modules.Settings.Utility);
@@ -160,7 +160,7 @@ end)
 
 -- << CopyJoinScriptButton >> --
 MakeButtonWithHint("CopyJoinScript", "Copy Join Script", GetKaoruAsset("kaoru/assets/Copy.png"), UDim2.new(0.5, 140, 0.5, 50), function()
-    Notify("Info", 5, "Copy Join Script", "Copied Join Script "..game.PlaceId);
+    Notify("Info", 5, "Copy Join Script", "Copied Join Script to clipboard");
 
     local Script = '**Executor Script:**\n```lua\n game:GetService("TeleportService"):TeleportToPlaceInstance('..tostring(game.PlaceId)..', "'..game.JobId..'")```\n**Browser Console Script:**\n```js\n Roblox.GameLauncher.joinGameInstance('..tostring(game.PlaceId)..', "'..game.JobId..'")```';
 
