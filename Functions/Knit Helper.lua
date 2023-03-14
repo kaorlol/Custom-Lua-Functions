@@ -4,6 +4,8 @@
         Helper:Load(); --> Knit
         Helper:GetControllers(); --> Controllers
         Helper:GetController(Controller); --> ControllerContents
+        Helper:GetServices(); --> Services
+        Helper:GetService(Service); --> ServiceContents
         Helper:DumpKnit(); --> Dumped to Console
         Helper:DumpToFile(); --> Dumped to KnitHelper.txt
 
@@ -13,9 +15,6 @@
         Helper:DumpKnit(); --> Dumps Controllers to the console
         Helper:DumpToFile(); --> Dumps Controllers to KnitHelper.txt
 ]]
-
--- << Modules >>
-local Serialize = loadstring(game:HttpGet("https://raw.githubusercontent.com/Uvxtq/Custom-Lua-Functions/main/Functions/Table%20Serializer.lua"))();
 
 -- << Services >> --
 local ReplicatedStorage = game:GetService("ReplicatedStorage");
@@ -154,7 +153,7 @@ local Helper = {}; do
 		self.ServiceContents = {};
 
 		return self;
-	end
+	end;
 
 	function Helper:GetKnitModule()
 		if self.Module then
@@ -170,7 +169,7 @@ local Helper = {}; do
 		end
 
 		return nil, "KnitClient not found";
-	end
+	end;
 
 	function Helper:Load()
 		local GetKnitModule = self:GetKnitModule()
@@ -182,7 +181,7 @@ local Helper = {}; do
 		end
 
 		return nil, "KnitClient not found";
-	end
+	end;
 
 	function Helper:GetControllers()
 		local Knit = self.Knit;
@@ -194,7 +193,7 @@ local Helper = {}; do
 		end
 
 		return nil, "Knit not found";
-	end
+	end;
 
 	function Helper:GetController(Controller)
 		local Controllers = self:GetControllers();
@@ -206,10 +205,43 @@ local Helper = {}; do
 		end
 
 		return nil, "Controller not found";
-	end
+	end;
+
+    function Helper:GetServices()
+        local Knit = self.Knit;
+
+        if Knit then
+            local GetService = rawget(Knit, "GetService");
+
+            self.Services = debug.getupvalue(GetService, 1):GetChildren();
+
+            return self.Services;
+        end
+
+        return nil, "Knit not found";
+    end;
+
+    function Helper:GetService(Service)
+        local Services = self:GetServices();
+
+        if Services then
+            local ServiceContents = Services[Service];
+
+            if ServiceContents then
+                self.ServiceContents = ServiceContents;
+
+                return self.ServiceContents;
+            end
+
+            return nil, "Service not found";
+        end
+
+        return nil, "Services not found";
+    end;
 
 	function Helper:DumpKnit()
 		local Controllers = self:GetControllers();
+        local Services = self:GetServices();
 
 		print("Controllers:")
 		table.foreach(Controllers, function(Index, Value)
@@ -229,12 +261,37 @@ local Helper = {}; do
 			    warn('Failed to dump controller "'..Index..'"');
 			end
 		end)
-	end
+        print("Services:")
+        table.foreach(Services, function(_, Service)
+            local Success, Error = pcall(function()
+                warn("    " .. Service.Name .. ":")
+                table.foreach(Service:GetDescendants(), function(_, Item)
+                    if Item:IsA("Folder") and Item.Name == "RF" then
+                        print("        Remote Function(s):");
+                        table.foreach(Item:GetDescendants(), function(_, Value)
+                            print("            " .. Value.Name);
+                        end)
+                    elseif Item:IsA("Folder") and Item.Name == "RE" then
+                        print("        Remote Event(s):");
+                        table.foreach(Item:GetDescendants(), function(_, Value)
+                            print("            " .. Value.Name);
+                        end)
+                    end
+                end)
+            end)
+
+            if not Success then
+                warn('Failed to dump service "'..Service.Name..'"');
+            end
+        end)
+	end;
 
 	function Helper:DumpToFile()
 		local Controllers = self:GetControllers();
+        local Services = self:GetServices();
 
-		writefile("KnitHelper.txt", "Controllers:\n");
+        writefile("KnitHelper.txt", "");
+		appendfile("KnitHelper.txt", "Controllers:\n");
 
 		table.foreach(Controllers, function(Index, Value)
 			local Success, Error = pcall(function()
@@ -253,7 +310,31 @@ local Helper = {}; do
 				warn('Failed to dump controller "' .. Index .. '" to file');
 			end
 		end)
-	end
+
+        appendfile("KnitHelper.txt", "Services:\n");
+        table.foreach(Services, function(_, Service)
+            local Success, Error = pcall(function()
+                appendfile("KnitHelper.txt", "    " .. Service.Name .. ":\n");
+                table.foreach(Service:GetDescendants(), function(_, Item)
+                    if Item:IsA("Folder") and Item.Name == "RF" then
+                        appendfile("KnitHelper.txt", "        Remote Function(s):\n");
+                        table.foreach(Item:GetDescendants(), function(_, Value)
+                            appendfile("KnitHelper.txt", "            " .. Value.Name .. "\n");
+                        end)
+                    elseif Item:IsA("Folder") and Item.Name == "RE" then
+                        appendfile("KnitHelper.txt", "        Remote Event(s):\n");
+                        table.foreach(Item:GetDescendants(), function(_, Value)
+                            appendfile("KnitHelper.txt", "            " .. Value.Name .. "\n");
+                        end)
+                    end
+                end)
+            end)
+
+            if not Success then
+                warn('Failed to dump service "' .. Service.Name .. '" to file');
+            end
+        end)
+	end;
 end
 
 return Helper;
