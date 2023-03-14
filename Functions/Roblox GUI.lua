@@ -9,11 +9,13 @@ local CoreGui = cloneref(game:GetService("CoreGui"));
 local Players = cloneref(game:GetService("Players"));
 local HttpService = cloneref(game:GetService("HttpService"));
 local StarterGui = cloneref(game:GetService("StarterGui"));
+local MarketplaceService = cloneref(game:GetService("MarketplaceService"));
 
 -- << Modules >> --
 local Utility = getrenv().require(CoreGui.RobloxGui.Modules.Settings.Utility);
 
 -- << Variables >> --
+local GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name;
 local Exploit = identifyexecutor and table.concat({identifyexecutor()}, " ") or "Unknown";
 local getasset = getsynasset or getcustomasset;
 local Request = (typeof(syn) == "table" and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or getgenv().request or request;
@@ -144,7 +146,7 @@ end
 
 -- << RejoinButton >> --
 MakeButtonWithHint("Rejoin", "Rejoin", GetKaoruAsset("kaoru/assets/Rejoin.png"), UDim2.new(0.5, -130, 0.5, 50), function()
-    Notify("Info", 5, "Rejoining", "Rejoined "..game.PlaceId);
+    Notify("Info", 5, "Rejoining", "Rejoined "..GameName);
 
     TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer);
 
