@@ -21,10 +21,8 @@ local function SerializeArgs(...)
 end
 
 local function FormatFunction(Function)
-    local Info = debug.getinfo(Function);
-
-    if Info then
-        local Proto = Info(Function);
+    if debug.getinfo(Function) then
+        local Proto = debug.getinfo(Function);
         local Params = {};
 
         if Proto.numparams then
