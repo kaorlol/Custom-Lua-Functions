@@ -390,7 +390,4 @@ local Helper = {}; do
 	end;
 end
 
-local Helper = Helper.new(); --> Creates a new Helper
-Helper:Load(); --> Loads Knit (Can also be in a variable to check if it loaded)
-Helper:DumpKnit(); --> Dumps Controllers to the console
-Helper:DumpToFile(); --> Dumps Controllers to KnitHelper.txt
+return Helper;
