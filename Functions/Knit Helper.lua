@@ -14,6 +14,10 @@
         Helper:Load(); --> Loads Knit (Can also be in a variable to check if it loaded)
         Helper:DumpKnit(); --> Dumps Controllers to the console
         Helper:DumpToFile(); --> Dumps Controllers to KnitHelper.txt
+
+        local EntityController = Helper:GetController("EntityController"); --> Gets the EntityController (if it exists)
+        EntityController:Hit("{c3ae1dd9-d645-4dea-be64-f2be78dbd82d}", "Enemy") --> Hits the enemy with the ID of {c3ae1dd9-d645-4dea-be64-f2be78dbd82d}
+
 ]]
 
 -- << Services >> --
@@ -136,6 +140,22 @@ local function FormatInfo(Function)
 	return nil, "Failed to get function data";
 end
 
+local function GetUpvalue(Upvalues, Name)
+	for _, Upvalue in next, Upvalues do
+		if typeof(Upvalue) == "Instance" then
+			if Upvalue.Name == Name then
+				return Upvalue;
+			end
+		else
+			if Upvalue == Name then
+				return Upvalue;
+			end
+		end
+	end
+
+	return nil, "Upvalue not found";
+end
+
 -- << Helper >> --
 local Helper = {}; do
 	Helper.__index = Helper;
@@ -187,7 +207,7 @@ local Helper = {}; do
 		local Knit = self.Knit;
 
 		if Knit then
-			self.Controllers = rawget(Knit, "Controllers");
+			self.Controllers = debug.getupvalue(Knit.GetController, 1);
 
 			return self.Controllers;
 		end
@@ -212,10 +232,19 @@ local Helper = {}; do
 
         if Knit then
             local GetService = rawget(Knit, "GetService");
+            local ServiceFolder = debug.getupvalues(GetService);
 
-            self.Services = debug.getupvalue(GetService, 1):GetChildren();
+            if ServiceFolder then
+				if GetUpvalue(ServiceFolder, "Services") then
+					self.Services = GetUpvalue(ServiceFolder, "Services"):GetChildren();
 
-            return self.Services;
+					return self.Services;
+				end
+
+				return nil, "Services not found";
+            end
+
+            return nil, "ServiceFolder not found";
         end
 
         return nil, "Knit not found";
@@ -242,6 +271,16 @@ local Helper = {}; do
 	function Helper:DumpKnit()
 		local Controllers = self:GetControllers();
         local Services = self:GetServices();
+
+        if not Controllers then
+            warn("Controllers not found")
+            return nil, "Controllers not found";
+        end
+
+        if not Services then
+            warn("Services not found")
+            return nil, "Services not found";
+        end
 
 		print("Controllers:")
 		table.foreach(Controllers, function(Index, Value)
@@ -281,7 +320,7 @@ local Helper = {}; do
             end)
 
             if not Success then
-                warn('Failed to dump service "'..Service.Name..'"');
+                warn('Failed to dump service "'..Service..'"');
             end
         end)
 	end;
@@ -289,6 +328,16 @@ local Helper = {}; do
 	function Helper:DumpToFile()
 		local Controllers = self:GetControllers();
         local Services = self:GetServices();
+
+        if not Controllers then
+            warn("Controllers not found")
+            return nil, "Controllers not found";
+        end
+
+        if not Services then
+            warn("Services not found")
+            return nil, "Services not found";
+        end
 
         writefile("KnitHelper.txt", "");
 		appendfile("KnitHelper.txt", "Controllers:\n");
@@ -337,4 +386,7 @@ local Helper = {}; do
 	end;
 end
 
-return Helper;
+local Helper = Helper.new(); --> Creates a new Helper
+Helper:Load(); --> Loads Knit (Can also be in a variable to check if it loaded)
+Helper:DumpKnit(); --> Dumps Controllers to the console
+--AHelper:DumpToFile(); --> Dumps Controllers to KnitHelper.txt
