@@ -207,7 +207,11 @@ local Helper = {}; do
 		local Knit = self.Knit;
 
 		if Knit then
-			self.Controllers = debug.getupvalue(Knit.GetController, 1);
+			if rawget(Knit, "Controllers") == nil then
+				self.Controllers = debug.getupvalue(Knit.GetController, 1);
+			else
+				self.Controllers = rawget(Knit, "Controllers");
+			end
 
 			return self.Controllers;
 		end
@@ -389,4 +393,4 @@ end
 local Helper = Helper.new(); --> Creates a new Helper
 Helper:Load(); --> Loads Knit (Can also be in a variable to check if it loaded)
 Helper:DumpKnit(); --> Dumps Controllers to the console
---AHelper:DumpToFile(); --> Dumps Controllers to KnitHelper.txt
+Helper:DumpToFile(); --> Dumps Controllers to KnitHelper.txt
