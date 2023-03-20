@@ -142,11 +142,15 @@ local function MakeButtonWithHint(Name, Text, Image, Position, ClickFunction)
     HintLabel.AnchorPoint = Vector2.new(0.5, 0.5);
     HintLabel.Size = UDim2.new(0, 55, 0, 60);
     HintLabel.Position = UDim2.new(0.150000006, 0, 0.474999994, 0);
+
+    -- if CoreGui.RobloxGui.SettingsShield.SettingsShield.MenuContainer.BottomButtonFrame:FindFirstChild("MuteButtonButtonButton") then
+    --     ButtonInstance.Size = UDim2.new(0, 235, 0, 70);
+    -- end
 end
 
 -- << RejoinButton >> --
 MakeButtonWithHint("Rejoin", "Rejoin", GetKaoruAsset("kaoru/assets/Rejoin.png"), UDim2.new(0.5, -130, 0.5, 50), function()
-    Notify("Info", 5, "Rejoining", "Rejoined "..GameName);
+    Notify("Info", 5, "Rejoining", "Rejoined "..game.JobId);
 
     TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer);
 
