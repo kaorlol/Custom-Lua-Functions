@@ -1,3 +1,5 @@
+-- made by progame (giga skid)
+
 local getupvalues = getupvalues or debug.getupvalues
 local getconstants = getconstants or debug.getconstants
 
