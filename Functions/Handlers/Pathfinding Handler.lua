@@ -314,8 +314,8 @@ function Path:Run(Target)
 		HumanoidRootPart = self.Agent.PrimaryPart;
 	end
 
-	local PathComputed, _ = pcall(function()
-		self.Path:ComputeAsync(HumanoidRootPart.Position, (typeof(Target) == "Vector3" and Target) or Target.Position);
+	local pathComputed, _ = pcall(function()
+		self.Path:ComputeAsync(self.Agent.PrimaryPart.Position - Vector3.new(0, self.Agent.PrimaryPart.Size.Y/0.75), (typeof(Target) == "Vector3" and Target) or Target.Position)
 	end)
 
 	if not PathComputed
